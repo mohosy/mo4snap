@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Get It Together Visualizer (No Scene 2)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Anton&display=swap');
+
+    /* global reset */
+    body, html {
+      margin: 0;
+      height: 100%;
+      background-color: black;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    /* hide the video by default; show it only when played */
+    #introVideo {
+      display: none;
+      position: absolute;
+      max-height: 100%;
+      max-width: 100%;
+      z-index: 15;
+    }
+
+    /* overlay with the play button for the initial start */
+    #playOverlay {
+      background-color: black;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+    }
+    #playOverlay button {
+      background-color: transparent;
+      border: none;
+      font-size: 100px;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* the main canvas for the initial music-reactive animations */
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 5;
+    }
+
+    /* =============== SCENE 1 MUSIC VISUALIZATION STYLES =============== */
+
+    /* final quick overlay after the audio ends */
+    #finalMessageOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      font-family: 'Poppins', sans-serif;
+      font-size: 48px;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- initial overlay with the big play button -->
+  <div id="playOverlay">
+    <button id="startBtn">▶</button>
+  </div>
+
+  <!-- the intro video that'll play first -->
+  <video id="introVideo" src="intro.MOV" playsinline></video>
+
+  <!-- main audio for the big canvas show -->
+  <audio id="audio" src="get-it-together.mp3"></audio>
+
+  <!-- the canvas for all the music-driven animations -->
+  <canvas id="animationCanvas"></canvas>
+
+  <script>
+    // ============= SCENE 1 SCRIPT =============
+
+    const canvas = document.getElementById('animationCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const startBtn = document.getElementById('startBtn');
+    const overlay = document.getElementById('playOverlay');
+    const introVideo = document.getElementById('introVideo');
+    const audio = document.getElementById('audio');
+
+    let animationId;
+    let startTime;
+    let finalSequenceTriggered = false;
+
+    // utility to clear the canvas each frame
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // random strobe-like lights
+    function clubLights(intensity = 1, lightsCount = 8) {
+      ctx.fillStyle = `rgba(31,122,255,${0.3 * intensity + 0.2})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = `rgba(255,255,255,${0.5 * intensity})`;
+      ctx.lineWidth = 5;
+      for (let i = 0; i < lightsCount; i++) {
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, 0);
+        ctx.lineTo(Math.random() * canvas.width, canvas.height);
+        ctx.stroke();
+      }
+    }
+
+    // expanding circle from the center
+    function rippleEffect(progress) {
+      const maxRadius = Math.max(canvas.width, canvas.height);
+      ctx.strokeStyle = `rgba(173,216,230,${1 - progress})`;
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.arc(canvas.width / 2, canvas.height / 2, maxRadius * progress, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
+
+    // draws a series of white rectangles (piano keys) in from left to right
+    function pianoKeysEffect(keys, progress) {
+      const keyWidth = canvas.width / keys;
+      const keyHeight = canvas.height / 3;
+      for (let i = 0; i < keys; i++) {
+        if (progress > i / keys) {
+          ctx.fillStyle = 'rgba(255,255,255,0.8)';
+          ctx.fillRect(i * keyWidth, canvas.height / 2 - keyHeight / 2, keyWidth - 5, keyHeight);
+        }
+      }
+    }
+
+    // radial “flower” of shards
+    function shardFlowerEffect(progress) {
+      const shards = 12;
+      ctx.save();
+      ctx.translate(canvas.width/2, canvas.height/2);
+      for(let i = 0; i < shards; i++){
+        ctx.rotate((Math.PI * 2 / shards));
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.lineTo(-20, -canvas.height * 0.4 * progress);
+        ctx.lineTo(20, -canvas.height * 0.4 * progress);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(255,255,255,${progress})`;
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // main animation loop for the music visual
+    function animate() {
+      const elapsed = (Date.now() - startTime) / 1000;
+      clearCanvas();
+
+      // the first ~6.15s is basically black screen
+      if (elapsed < 6.15) {
+        ctx.fillStyle = 'rgba(0,0,0,0.9)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      } else {
+        // strobe effect
+        let lightsCount = 8;
+        if (elapsed >= 217 && elapsed <= 225) {
+          lightsCount = Math.max(8 - Math.floor((elapsed - 217)), 0);
+          ctx.fillStyle = `rgba(0,0,0,${(elapsed - 217)/8 * 0.5})`;
+        }
+        clubLights(1, lightsCount);
+
+        // shard effect in certain intervals
+        if ((elapsed >= 82 && elapsed <= 98) || (elapsed >= 177 && elapsed <= 193)) {
+          shardFlowerEffect(Math.sin(Math.PI * (elapsed % 16) / 16));
+        }
+        // amplify club lights in certain intervals
+        if ((elapsed >= 53 && elapsed <= 82) || (elapsed >= 98 && elapsed <= 115)) {
+          clubLights(2);
+        }
+
+        // ripple effect triggered by guitar timestamps
+        const guitarTimestamps = [
+          14,18,29,34,45,50,61,65,77,81,
+          108,124,128,139,144,155,159,171,
+          175,194,201,206,217,221
+        ];
+        guitarTimestamps.forEach(time => {
+          const diff = elapsed - time;
+          if (diff >= 0 && diff <= 1.5) {
+            rippleEffect(diff / 1.5);
+          }
+        });
+
+        // piano keys effect at certain times
+        if (elapsed >= 59 && elapsed <= 62) pianoKeysEffect(7, (elapsed - 59) / 3);
+        if (elapsed >= 68 && elapsed <= 70) pianoKeysEffect(4, (elapsed - 68) / 2);
+        if (elapsed >= 74 && elapsed <= 77) pianoKeysEffect(15, (elapsed - 74) / 3);
+
+        // "hello" text around 22.5 -> 27.5
+        if (elapsed >= 22.5 && elapsed <= 27.5) {
+          ctx.font = '70px Poppins, sans-serif';
+          ctx.fillStyle = `rgba(255,255,255,${1 - Math.abs(25 - elapsed)})`;
+          ctx.textAlign = 'center';
+          ctx.fillText("hello", canvas.width / 2, canvas.height / 2);
+        }
+
+        // banner at ~77.09s -> ~82.09s
+        if (elapsed >= 77.09 && elapsed <= 82.09) {
+          ctx.font = '50px Poppins, sans-serif';
+          ctx.fillStyle = 'white';
+          ctx.textAlign = 'center';
+          ctx.fillText(
+            "Correction: AI was used for the HTML/CSS and videos",
+            canvas.width / 2,
+            canvas.height / 2 + 100
+          );
+        }
+      }
+      animationId = requestAnimationFrame(animate);
+    }
+
+    // once we finish the mp3, show the final black screen with text
+    function finalSequence() {
+      cancelAnimationFrame(animationId);
+      canvas.style.display = 'none';
+
+      const finalMessageOverlay = document.createElement('div');
+      finalMessageOverlay.id = 'finalMessageOverlay';
+      finalMessageOverlay.innerText = "this is my story,";
+      document.body.appendChild(finalMessageOverlay);
+    }
+
+    // start the entire chain when the user clicks the big play button
+    startBtn.onclick = () => {
+      overlay.style.display = 'none';
+      introVideo.style.display = 'block';
+      introVideo.currentTime = 0;
+      introVideo.play();
+
+      // we also play a “sneak peek” snippet from get-it-together.mp3
+      const sneakStart = 95.69;
+      const sneakEnd = 102.52;
+      const sneakPeek = new Audio('get-it-together.mp3');
+      sneakPeek.volume = 0.2;
+      setTimeout(() => {
+        sneakPeek.currentTime = 0;
+        sneakPeek.play();
+      }, sneakStart * 1000);
+      setTimeout(() => {
+        sneakPeek.pause();
+        sneakPeek.currentTime = 0;
+      }, sneakEnd * 1000);
+
+      // watch for the introVideo to reach ~128.90s
+      introVideo.ontimeupdate = () => {
+        if (introVideo.currentTime >= 128.90) {
+          introVideo.pause();
+          introVideo.style.display = 'none';
+          audio.currentTime = 0;
+
+          // sync up the start time with Date.now() for the animations
+          const syncStart = Date.now();
+          audio.onplay = () => {
+            startTime = syncStart;
+            animate();
+          };
+
+          // trigger final sequence on audio end
+          audio.onended = () => {
+            if (!finalSequenceTriggered) {
+              finalSequenceTriggered = true;
+              finalSequence();
+            }
+          };
+
+          // play the full track
+          audio.play();
+        }
+      };
+    };
+
+    window.onresize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+  </script>
+</body>
+</html>
