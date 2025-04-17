@@ -3,19 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <title>O Tunnel with Centered Starfield</title>
+
+  <!-- modern sans-serif font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
+    /********************************************************
+     * GLOBAL + LAYOUT
+     ********************************************************/
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
-      height: 100%;
+      /* allow vertical scroll, hide horizontal */
+      overflow-x: hidden;
+      overflow-y: auto;
+      font-family: 'Montserrat', sans-serif; /* modern font */
       background: black;
-      overflow: hidden;
+      color: white;
     }
+
+    /* the initial tunnel scene takes full viewport height */
     .scene {
-      width: 100vw;
+      width: 100%;
       height: 100vh;
       perspective: 1200px;
       position: relative;
@@ -26,13 +37,15 @@
       animation: violentShake 5s ease-in-out;
     }
     @keyframes violentShake {
-      0% { transform: translate(0, 0); }
-      20% { transform: translate(-30px, 30px); }
-      40% { transform: translate(30px, -30px); }
-      60% { transform: translate(-30px, -30px); }
-      80% { transform: translate(30px, 30px); }
+      0%   { transform: translate(0, 0); }
+      20%  { transform: translate(-30px, 30px); }
+      40%  { transform: translate(30px, -30px); }
+      60%  { transform: translate(-30px, -30px); }
+      80%  { transform: translate(30px, 30px); }
       100% { transform: translate(0, 0); }
     }
+
+    /* starfield behind the tunnel */
     #stars-container {
       position: absolute;
       top: 0;
@@ -61,6 +74,8 @@
         transform: rotate(var(--rotation)) translateX(var(--offset));
       }
     }
+
+    /* the "Mo" text that zooms in */
     #mo-container {
       position: absolute;
       z-index: 3;
@@ -72,10 +87,12 @@
       font-family: Arial, sans-serif;
     }
     @keyframes zoomIn {
-      0% { transform: scale(1); opacity: 1; }
-      99% { transform: scale(80); opacity: 1; }
-      100% { transform: scale(80); opacity: 0; }
+      0%   { transform: scale(1);   opacity: 1; }
+      99%  { transform: scale(80);  opacity: 1; }
+      100% { transform: scale(80);  opacity: 0; }
     }
+
+    /* quick white flash after the "Mo" text zoom */
     #flash {
       position: absolute;
       top: 0;
@@ -89,9 +106,11 @@
       animation: flashAnim 0.5s 6s forwards;
     }
     @keyframes flashAnim {
-      0% { opacity: 1; }
+      0%   { opacity: 1; }
       100% { opacity: 0; }
     }
+
+    /* 3D tunnel behind everything */
     #tunnel-container {
       position: absolute;
       width: 100%;
@@ -110,8 +129,8 @@
       animation: tunnelTravel 15s 6s linear forwards;
     }
     @keyframes tunnelTravel {
-      0% { transform: translate(-50%, -50%) translateZ(-3500px) rotateZ(0deg); }
-      100% { transform: translate(-50%, -50%) translateZ(0) rotateZ(720deg); }
+      0%   { transform: translate(-50%, -50%) translateZ(-3500px) rotateZ(0deg); }
+      100% { transform: translate(-50%, -50%) translateZ(0)       rotateZ(720deg); }
     }
     .tunnel-ring {
       position: absolute;
@@ -128,6 +147,8 @@
       width: 80px;
       height: 80px;
     }
+
+    /* the final scene is positioned absolute so we can fade it in after the tunnel */
     #final-scene {
       position: absolute;
       top: 0;
@@ -144,10 +165,16 @@
       transition: opacity 2s ease-in-out, transform 3s ease-in-out;
       z-index: 5;
       transform: scale(1);
-      font-family: 'Montserrat', sans-serif;
       will-change: transform;
       backface-visibility: hidden;
+      font-family: 'Montserrat', sans-serif;
     }
+    #final-scene {
+      /* override transition for the scale effect */
+      transition: opacity 2s ease-in-out, transform 5s ease-in-out !important;
+    }
+
+    /* starfield for the final scene’s background */
     #final-stars-container {
       position: absolute;
       top: 0;
@@ -168,7 +195,7 @@
       animation: twinkle 3s infinite ease-in-out alternate;
     }
     @keyframes twinkle {
-      0% { opacity: 0.2; }
+      0%   { opacity: 0.2; }
       100% { opacity: 1; }
     }
     .shooting-star {
@@ -189,9 +216,11 @@
         transform: rotate(var(--rotation)) translateX(var(--offset));
       }
     }
+
+    /* text and button in final scene */
     #final-scene h1 {
       margin: 0 0 20px;
-      font-size: 2.8em;
+      font-size: 2.4em;
       text-align: center;
       text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
       z-index: 1;
@@ -214,30 +243,32 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.3);
       z-index: 1;
     }
-    #final-scene #cards-grid {
+
+    /* the 6 cards in final scene that lead to each video */
+    #cards-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 40px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 30px;
       width: 80%;
       max-width: 800px;
+      margin-bottom: 40px;
       z-index: 1;
     }
     #final-scene .card {
       background: rgba(255, 255, 255, 0.1);
       border: 2px solid rgba(255, 255, 255, 0.2);
       border-radius: 15px;
-      height: 250px;
       backdrop-filter: blur(5px);
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       z-index: 1;
+      height: 200px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
-    video::-webkit-media-controls,
-    video::-webkit-media-controls-enclosure {
-      display: none !important;
-    }
+
+    /* reflection caption that shows up during videos */
     #video-reflection-caption {
       position: fixed;
       bottom: 30px;
@@ -251,20 +282,29 @@
       border-radius: 6px;
       z-index: 9999;
     }
+
+    /* modern catalog controls */
     #catalog-controls {
-      display: none;
-      background: rgba(0, 0, 0, 0.6);
+      /* show it by default; no gating by watchers */
+      display: block;
+      background: rgba(255,255,255,0.06);
       padding: 20px;
       margin: 30px auto;
       border-radius: 8px;
-      width: 80%;
+      width: 90%;
       max-width: 800px;
-      z-index: 10;
       color: #fff;
+      z-index: 10;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
     }
     #catalog-controls h2 {
       margin-top: 0;
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 10px;
     }
+
+    /* layout for the listed chapters */
     #chapter-list {
       margin-top: 20px;
       display: grid;
@@ -275,20 +315,77 @@
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 6px;
-      padding: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
+    .chapter-card h3 {
+      margin-top: 0;
+      margin-bottom: 5px;
+    }
+
+    /* inputs, selects, buttons (consistent style) */
     #catalog-controls input,
     #catalog-controls select,
     #catalog-controls button,
     #catalog-controls textarea {
       margin: 5px;
-      padding: 5px;
+      padding: 8px 10px;
       border-radius: 4px;
       border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95em;
+    }
+    /* consistent dark background for inputs */
+    #catalog-controls select,
+    #catalog-controls input[type="text"],
+    #catalog-controls input[type="number"],
+    #catalog-controls textarea {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+    }
+    /* modern button style */
+    #catalog-controls button {
+      background: #17b978;
+      color: white;
+      cursor: pointer;
+      border: none;
+      transition: background 0.3s;
+    }
+    #catalog-controls button:hover {
+      background: #139f66;
+    }
+
+    /* spacing the CRUD section so it doesn’t feel cluttered */
+    #crud-operations {
+      margin-top: 30px;
+    }
+    #crud-operations h3 {
+      margin-top: 20px;
+      margin-bottom: 5px;
+      font-size: 1.1em;
+      font-weight: 700;
+    }
+
+    /* on smaller screens, single column for #chapter-list */
+    @media (max-width: 600px) {
+      #chapter-list {
+        grid-template-columns: 1fr;
+      }
+      #cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* hide default media controls on the video elements */
+    video::-webkit-media-controls,
+    video::-webkit-media-controls-enclosure {
+      display: none !important;
     }
   </style>
 </head>
 <body>
+  <!-- the initial 3D tunnel scene -->
   <div class="scene">
     <div id="stars-container"></div>
     <div id="mo-container">
@@ -301,8 +398,15 @@
       <div class="tunnel" id="tunnel"></div>
     </div>
   </div>
+
+  <!-- background music -->
   <audio id="background-music" src="zoom-in.mp3" autoplay></audio>
+
   <script>
+    /***********************************************************
+     * 1) LIFE CHAPTERS DATA
+     *    (same as your original, used for the videos & catalog)
+     ***********************************************************/
     const lifeChapters = [
       {
         title: "Intro: Working 3 Jobs",
@@ -347,24 +451,23 @@
         impact: 100
       }
     ];
+
+    /***********************************************************
+     * 2) WATCHERS LOGIC (kept, but no longer gating the catalog)
+     *    we won't hide the catalog controls if not all watched.
+     *    but we’ll keep the localStorage watchers in case needed.
+     ***********************************************************/
     function markVideoWatched(index) {
       let watched = JSON.parse(localStorage.getItem('watchedChapters')) || {};
       watched[index] = true;
       localStorage.setItem('watchedChapters', JSON.stringify(watched));
-      checkAllVideosWatched();
+      // we used to call checkAllVideosWatched() here, but we no longer
+      // gate the catalog with it, so we won't do that.
     }
-    function checkAllVideosWatched() {
-      let watched = JSON.parse(localStorage.getItem('watchedChapters')) || {};
-      let count = 0;
-      for (let key in watched) {
-        if (watched[key]) count++;
-      }
-      if (count === 6) {
-        const catalogControls = document.getElementById('catalog-controls');
-        if (catalogControls) catalogControls.style.display = 'block';
-        renderChapters();
-      }
-    }
+
+    /***********************************************************
+     * 3) REFLECTION CAPTION DURING VIDEO
+     ***********************************************************/
     function createReflectionCaption(index) {
       removeReflectionCaption();
       const captionDiv = document.createElement('div');
@@ -376,165 +479,108 @@
       const existing = document.getElementById('video-reflection-caption');
       if (existing) existing.remove();
     }
-    function renderChapters() {
-      const categorySelect = document.getElementById('category-select');
-      const selectedCategory = categorySelect ? categorySelect.value : 'All';
-      const searchInput = document.getElementById('search-input');
-      const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+
+    /***********************************************************
+     * 4) RENDERING THE CHAPTER CARDS
+     *    now with "update results" approach for filter/search/sort
+     ***********************************************************/
+
+    // track user preference for sorting, search, filter
+    let selectedCategory = 'All';
+    let searchTerm = '';
+    let sortByImpactDesc = false;
+
+    // re-render function that applies the current filter, search, and sort
+    function updateResults() {
       let displayed = lifeChapters.slice();
+
+      // filter by category
       if (selectedCategory !== 'All') {
-        displayed = displayed.filter(function(chap) {
-          return chap.category === selectedCategory;
+        displayed = displayed.filter(chap => chap.category === selectedCategory);
+      }
+
+      // filter by search
+      if (searchTerm.trim() !== '') {
+        let lower = searchTerm.toLowerCase();
+        displayed = displayed.filter(chap => {
+          let t = chap.title.toLowerCase();
+          let r = chap.reflection.toLowerCase();
+          return t.includes(lower) || r.includes(lower);
         });
       }
-      displayed = displayed.filter(function(chap) {
-        const t = chap.title.toLowerCase();
-        const r = chap.reflection.toLowerCase();
-        return (t.includes(searchTerm) || r.includes(searchTerm));
-      });
+
+      // optional sort by impact desc
+      if (sortByImpactDesc) {
+        displayed.sort((a, b) => b.impact - a.impact);
+      }
+
+      // now show them in #chapter-list
       const listDiv = document.getElementById('chapter-list');
       if (!listDiv) return;
       listDiv.innerHTML = '';
-      for (let i = 0; i < displayed.length; i++) {
-        const c = displayed[i];
+
+      displayed.forEach(chap => {
         const card = document.createElement('div');
         card.className = 'chapter-card';
+
         const fileEl = document.createElement('p');
-        fileEl.textContent = "filename: " + c.filename;
+        fileEl.textContent = "filename: " + chap.filename;
         card.appendChild(fileEl);
+
         const titleEl = document.createElement('h3');
-        titleEl.textContent = c.title;
+        titleEl.textContent = chap.title;
         card.appendChild(titleEl);
+
         const catEl = document.createElement('p');
-        catEl.textContent = "category: " + c.category;
+        catEl.textContent = "category: " + chap.category;
         card.appendChild(catEl);
+
         const impactEl = document.createElement('p');
-        impactEl.textContent = "impact: " + c.impact;
+        impactEl.textContent = "impact: " + chap.impact;
         card.appendChild(impactEl);
+
         const refEl = document.createElement('p');
-        refEl.textContent = "reflection: " + c.reflection;
+        refEl.textContent = "reflection: " + chap.reflection;
         card.appendChild(refEl);
+
         listDiv.appendChild(card);
-      }
-    }
-    function sortByImpactDesc() {
-      lifeChapters.sort(function(a, b) {
-        return b.impact - a.impact;
       });
-      renderChapters();
     }
-    function unlockCatalog() {
-      const controls = document.getElementById('catalog-controls');
-      if (controls) controls.style.display = 'block';
-      if (!document.getElementById('shuffle-btn')) {
-        const shuffleBtn = document.createElement('button');
-        shuffleBtn.id = 'shuffle-btn';
-        shuffleBtn.textContent = 'shuffle chapters';
-        shuffleBtn.style.marginLeft = '10px';
-        shuffleBtn.style.padding = '10px 20px';
-        shuffleBtn.style.fontSize = '1em';
-        shuffleBtn.style.cursor = 'pointer';
-        shuffleBtn.style.borderRadius = '5px';
-        shuffleBtn.style.zIndex = '20';
-        shuffleBtn.addEventListener('click', () => {
-          for (let i = lifeChapters.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [lifeChapters[i], lifeChapters[j]] = [lifeChapters[j], lifeChapters[i]];
-          }
-          renderChapters();
-        });
-        controls.appendChild(shuffleBtn);
-      }
-      const cat = document.getElementById('category-select');
-      const sortBtn = document.getElementById('sort-impact-btn');
-      const searchInput = document.getElementById('search-input');
-      if (cat) cat.disabled = false;
-      if (sortBtn) sortBtn.disabled = false;
-      if (searchInput) searchInput.disabled = false;
-      renderChapters();
-    }
+
+    /***********************************************************
+     * 5) CRUD functions
+     ***********************************************************/
     function addChapter(newChap) {
       lifeChapters.push(newChap);
-      renderChapters();
+      updateResults();
     }
     function removeChapterByTitle(title) {
-      let index = lifeChapters.findIndex(ch => ch.title.toLowerCase() === title.toLowerCase());
-      if (index !== -1) {
-        lifeChapters.splice(index, 1);
+      let idx = lifeChapters.findIndex(ch => ch.title.toLowerCase() === title.toLowerCase());
+      if (idx !== -1) {
+        lifeChapters.splice(idx, 1);
       }
-      renderChapters();
+      updateResults();
     }
     function updateChapter(oldTitle, updated) {
-      let index = lifeChapters.findIndex(ch => ch.title.toLowerCase() === oldTitle.toLowerCase());
-      if (index !== -1) {
-        lifeChapters[index].title = updated.title ? updated.title : lifeChapters[index].title;
-        lifeChapters[index].filename = updated.filename ? updated.filename : lifeChapters[index].filename;
-        lifeChapters[index].category = updated.category ? updated.category : lifeChapters[index].category;
-        lifeChapters[index].reflection = updated.reflection ? updated.reflection : lifeChapters[index].reflection;
+      let idx = lifeChapters.findIndex(ch => ch.title.toLowerCase() === oldTitle.toLowerCase());
+      if (idx !== -1) {
+        if (updated.title)      lifeChapters[idx].title      = updated.title;
+        if (updated.filename)   lifeChapters[idx].filename   = updated.filename;
+        if (updated.category)   lifeChapters[idx].category   = updated.category;
+        if (updated.reflection) lifeChapters[idx].reflection = updated.reflection;
         if (typeof updated.impact === 'number') {
-          lifeChapters[index].impact = updated.impact;
+          lifeChapters[idx].impact = updated.impact;
         }
       }
-      renderChapters();
+      updateResults();
     }
+
+    /***********************************************************
+     * 6) FULL VIDEO TRANSITION CHAIN
+     *    (unchanged logic; we only removed gating from watchers)
+     ***********************************************************/
     window.addEventListener('DOMContentLoaded', () => {
-      checkAllVideosWatched();
-      const catSelect = document.getElementById('category-select');
-      const sortBtn = document.getElementById('sort-impact-btn');
-      const searchInput = document.getElementById('search-input');
-      if (catSelect) catSelect.addEventListener('change', renderChapters);
-      if (sortBtn) sortBtn.addEventListener('click', sortByImpactDesc);
-      if (searchInput) searchInput.addEventListener('keyup', renderChapters);
-      const addBtn = document.getElementById('add-chapter-btn');
-      const removeBtn = document.getElementById('remove-chapter-btn');
-      const updateBtn = document.getElementById('update-chapter-btn');
-      if (addBtn) {
-        addBtn.addEventListener('click', () => {
-          const t = document.getElementById('add-title').value.trim();
-          const f = document.getElementById('add-filename').value.trim();
-          const cat = document.getElementById('add-category').value.trim();
-          const ref = document.getElementById('add-reflection').value.trim();
-          const imp = parseInt(document.getElementById('add-impact').value.trim()) || 0;
-          if (t && f && cat && ref) {
-            addChapter({
-              title: t,
-              filename: f,
-              category: cat,
-              reflection: ref,
-              impact: imp
-            });
-          }
-        });
-      }
-      if (removeBtn) {
-        removeBtn.addEventListener('click', () => {
-          const rtitle = document.getElementById('remove-title').value.trim();
-          if (rtitle) removeChapterByTitle(rtitle);
-        });
-      }
-      if (updateBtn) {
-        updateBtn.addEventListener('click', () => {
-          const oldT = document.getElementById('update-old-title').value.trim();
-          const newT = document.getElementById('update-new-title').value.trim();
-          const newF = document.getElementById('update-new-filename').value.trim();
-          const newC = document.getElementById('update-new-category').value.trim();
-          const newR = document.getElementById('update-new-reflection').value.trim();
-          const newI = parseInt(document.getElementById('update-new-impact').value.trim());
-          if (oldT) {
-            updateChapter(oldT, {
-              title: newT || null,
-              filename: newF || null,
-              category: newC || null,
-              reflection: newR || null,
-              impact: isNaN(newI) ? null : newI
-            });
-          }
-        });
-      }
-      const oTarget = document.getElementById('o-target');
-      const moContainer = document.getElementById('mo-container');
-      const tunnel1 = document.getElementById('tunnel');
-      const starsContainer = document.getElementById('stars-container');
+      /* 6.1) background music volume fade-in */
       const backgroundMusic = document.getElementById('background-music');
       backgroundMusic.volume = 0.05;
       const volumeInterval = setInterval(() => {
@@ -544,12 +590,19 @@
           clearInterval(volumeInterval);
         }
       }, 200);
+
+      /* 6.2) set transform origin for the "Mo" container */
+      const oTarget = document.getElementById('o-target');
+      const moContainer = document.getElementById('mo-container');
       const oRect = oTarget.getBoundingClientRect();
       const moRect = moContainer.getBoundingClientRect();
       const xOrigin = oRect.left + oRect.width / 2 - moRect.left;
       const yOrigin = oRect.top + oRect.height / 2 - moRect.top;
       moContainer.style.transformOrigin = `${xOrigin}px ${yOrigin}px`;
-      const generateTunnelRings = (tunnelElem) => {
+
+      /* 6.3) generate the 350 tunnel rings */
+      const tunnel1 = document.getElementById('tunnel');
+      function generateTunnelRings(tunnelElem) {
         const ringCount = 350;
         for (let i = 0; i < ringCount; i++) {
           const ring = document.createElement('div');
@@ -562,8 +615,11 @@
           ring.textContent = 'o';
           tunnelElem.appendChild(ring);
         }
-      };
+      }
       generateTunnelRings(tunnel1);
+
+      /* 6.4) generate initial starfield for the 3D scene */
+      const starsContainer = document.getElementById('stars-container');
       const starCount = 100;
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
@@ -583,13 +639,15 @@
         const angle = Math.atan2(posY - centerY, posX - centerX);
         const angleDeg = angle * 180 / Math.PI;
         star.style.setProperty('--rotation', `${angleDeg}deg`);
-        star.style.setProperty('--offset', `500px`);
+        star.style.setProperty('--offset', '500px');
         const duration = 1.5 + Math.random() * 1.5;
         star.style.animationDuration = `${duration}s`;
         const delay = 6 + Math.random();
         star.style.animationDelay = `${delay}s`;
         starsContainer.appendChild(star);
       }
+
+      /* 6.5) after 21s, hide the tunnel and accelerate the stars. */
       setTimeout(() => {
         tunnel1.style.display = "none";
         const stars = document.querySelectorAll('.star');
@@ -602,8 +660,10 @@
         }, 500);
         setTimeout(() => {
           clearInterval(accelerationInterval);
-        }, (38000 - 21000));
+        }, 38000 - 21000);
       }, 21000);
+
+      /* 6.6) if music hits time>=21s, do the same star acceleration logic */
       backgroundMusic.addEventListener('timeupdate', () => {
         if (backgroundMusic.currentTime >= 21 && tunnel1.style.display !== "none") {
           tunnel1.style.display = "none";
@@ -617,19 +677,27 @@
           }, 500);
           setTimeout(() => {
             clearInterval(accelerationInterval);
-          }, (38000 - 21000));
+          }, 38000 - 21000);
         }
       });
+
+      /* 6.7) fade out the "scene", fade in the "final-scene" (catalog + 6 cards) */
       function fadeOutScene() {
         const scene = document.querySelector('.scene');
         scene.style.transition = 'opacity 2s';
         scene.style.opacity = '0';
+
         setTimeout(() => {
+          // build the final-scene div dynamically (like your original)
           const finalScene = document.createElement('div');
           finalScene.id = 'final-scene';
+
+          // starfield for final scene
           const finalStarsContainer = document.createElement('div');
           finalStarsContainer.id = 'final-stars-container';
           finalScene.appendChild(finalStarsContainer);
+
+          // scatter some final stars
           const finalStarCount = 80;
           for (let i = 0; i < finalStarCount; i++) {
             const star = document.createElement('div');
@@ -640,6 +708,7 @@
             star.style.top = y + '%';
             finalStarsContainer.appendChild(star);
           }
+          // some shooting stars
           const shootingStarCount = 6;
           for (let i = 0; i < shootingStarCount; i++) {
             const sstar = document.createElement('div');
@@ -650,23 +719,29 @@
             sstar.style.top = yy + 'px';
             const angle = Math.random() * 360;
             sstar.style.setProperty('--rotation', `${angle}deg`);
-            sstar.style.setProperty('--offset', `600px`);
+            sstar.style.setProperty('--offset', '600px');
             const dur = 1.5 + Math.random() * 2;
             sstar.style.animationDuration = `${dur}s`;
             const del = Math.random() * 10;
             sstar.style.animationDelay = `${del}s`;
             finalStarsContainer.appendChild(sstar);
           }
+
+          // heading + subtitle + play button
           const title = document.createElement('h1');
           title.textContent = 'Welcome to My Catalog Story';
           finalScene.appendChild(title);
+
           const subtitle = document.createElement('p');
           subtitle.textContent = "click the play button to begin";
           finalScene.appendChild(subtitle);
+
           const playButton = document.createElement('button');
           playButton.id = 'play-btn';
           playButton.textContent = 'play';
           finalScene.appendChild(playButton);
+
+          // the 6 "cards" with numbers 1..6
           const cardsGrid = document.createElement('div');
           cardsGrid.id = 'cards-grid';
           for (let i = 0; i < 6; i++) {
@@ -684,12 +759,16 @@
             cardsGrid.appendChild(card);
           }
           finalScene.appendChild(cardsGrid);
+
+          // the catalog controls container
           const catalogControls = document.createElement('div');
           catalogControls.id = 'catalog-controls';
           catalogControls.innerHTML = `
             <h2>my life chapters</h2>
+
+            <!-- filter by category -->
             <label for="category-select">filter by category:</label>
-            <select id="category-select" disabled>
+            <select id="category-select">
               <option value="All">All</option>
               <option value="Work">Work</option>
               <option value="Mental Health">Mental Health</option>
@@ -698,10 +777,19 @@
               <option value="Creation">Creation</option>
               <option value="Results">Results</option>
             </select>
-            <button id="sort-impact-btn" disabled>sort by impact (desc)</button>
+
+            <!-- sort impact toggle -->
+            <button id="sort-impact-btn">sort by impact (desc)</button>
+
+            <!-- search -->
             <label for="search-input">search (title/reflection):</label>
-            <input type="text" id="search-input" placeholder="type to search..." disabled>
+            <input type="text" id="search-input" placeholder="type to search...">
+
+            <!-- "update results" button -->
+            <button id="update-results-btn" style="margin-left: 10px;">update results</button>
+
             <div id="chapter-list"></div>
+
             <div id="crud-operations">
               <h3>add chapter</h3>
               <input type="text" id="add-title" placeholder="title">
@@ -710,9 +798,11 @@
               <textarea id="add-reflection" placeholder="reflection"></textarea>
               <input type="number" id="add-impact" placeholder="impact">
               <button id="add-chapter-btn">add</button>
+
               <h3>remove chapter</h3>
               <input type="text" id="remove-title" placeholder="title">
               <button id="remove-chapter-btn">remove</button>
+
               <h3>update chapter</h3>
               <input type="text" id="update-old-title" placeholder="old title">
               <input type="text" id="update-new-title" placeholder="new title">
@@ -724,10 +814,88 @@
             </div>
           `;
           finalScene.appendChild(catalogControls);
+
+          // add final-scene to the body
           document.body.appendChild(finalScene);
+
+          // fade it in
           setTimeout(() => {
             finalScene.style.opacity = '1';
           }, 50);
+
+          /* 6.7a) hooking up the catalog UI events (filter, sort, search, CRUD) */
+          const catSelectEl = catalogControls.querySelector('#category-select');
+          const sortImpactBtn = catalogControls.querySelector('#sort-impact-btn');
+          const searchInput = catalogControls.querySelector('#search-input');
+          const updateBtn = catalogControls.querySelector('#update-results-btn');
+
+          // toggle sort by impact desc
+          sortImpactBtn.addEventListener('click', () => {
+            // flip the boolean
+            sortByImpactDesc = !sortByImpactDesc;
+            if (sortByImpactDesc) {
+              sortImpactBtn.textContent = 'sort by impact (desc) [ON]';
+            } else {
+              sortImpactBtn.textContent = 'sort by impact (desc)';
+            }
+          });
+
+          // set category whenever user chooses
+          catSelectEl.addEventListener('change', e => {
+            selectedCategory = e.target.value;
+          });
+
+          // capture search term
+          searchInput.addEventListener('input', e => {
+            searchTerm = e.target.value;
+          });
+
+          // actually re-render when user clicks update
+          updateBtn.addEventListener('click', updateResults);
+
+          // CRUD logic
+          catalogControls.querySelector('#add-chapter-btn').addEventListener('click', () => {
+            const t = catalogControls.querySelector('#add-title').value.trim();
+            const f = catalogControls.querySelector('#add-filename').value.trim();
+            const c = catalogControls.querySelector('#add-category').value.trim();
+            const r = catalogControls.querySelector('#add-reflection').value.trim();
+            const i = parseInt(catalogControls.querySelector('#add-impact').value.trim()) || 0;
+            if (t && f && c && r) {
+              addChapter({
+                title: t,
+                filename: f,
+                category: c,
+                reflection: r,
+                impact: i
+              });
+            }
+          });
+          catalogControls.querySelector('#remove-chapter-btn').addEventListener('click', () => {
+            const rtitle = catalogControls.querySelector('#remove-title').value.trim();
+            if (rtitle) removeChapterByTitle(rtitle);
+          });
+          catalogControls.querySelector('#update-chapter-btn').addEventListener('click', () => {
+            const oldT = catalogControls.querySelector('#update-old-title').value.trim();
+            const newT = catalogControls.querySelector('#update-new-title').value.trim();
+            const newF = catalogControls.querySelector('#update-new-filename').value.trim();
+            const newC = catalogControls.querySelector('#update-new-category').value.trim();
+            const newR = catalogControls.querySelector('#update-new-reflection').value.trim();
+            const newI = parseInt(catalogControls.querySelector('#update-new-impact').value.trim());
+            if (oldT) {
+              updateChapter(oldT, {
+                title: newT || null,
+                filename: newF || null,
+                category: newC || null,
+                reflection: newR || null,
+                impact: isNaN(newI) ? null : newI
+              });
+            }
+          });
+
+          // do an initial render so you see all chapters from the start
+          updateResults();
+
+          /* 6.7b) hooking up the "play" button that starts the big 6-video chain */
           playButton.addEventListener('click', () => {
             const cards = document.querySelectorAll('#cards-grid .card');
             const card = cards[0];
@@ -757,6 +925,7 @@
               video1.playsInline = true;
               video1.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
               document.body.appendChild(video1);
+
               video1.addEventListener('play', () => {
                 createReflectionCaption(0);
               });
@@ -764,6 +933,7 @@
                 removeReflectionCaption();
                 markVideoWatched(0);
               });
+
               let nextButton1Shown = false;
               video1.addEventListener('timeupdate', () => {
                 if (!nextButton1Shown && video1.currentTime >= 60) {
@@ -782,6 +952,7 @@
                     zIndex: 9999
                   });
                   document.body.appendChild(nextButton);
+
                   const backButton = document.createElement('button');
                   backButton.id = 'back-btn';
                   backButton.textContent = 'back';
@@ -796,6 +967,7 @@
                     zIndex: 9999
                   });
                   document.body.appendChild(backButton);
+
                   backButton.addEventListener('click', () => {
                     removeReflectionCaption();
                     backButton.remove();
@@ -804,6 +976,7 @@
                     video1.remove();
                     finalScene.style.transform = "scale(1)";
                   });
+
                   nextButton.addEventListener('click', () => {
                     removeReflectionCaption();
                     backButton.remove();
@@ -816,10 +989,10 @@
                       finalScene.removeEventListener('transitionend', handlerZoomOut);
                       const cardMiddle = cards[1];
                       if (!cardMiddle) return;
-                      const finalSceneRect = finalScene.getBoundingClientRect();
-                      const cardRect = cardMiddle.getBoundingClientRect();
-                      const cx = cardRect.left + cardRect.width / 2 - finalSceneRect.left;
-                      const cy = cardRect.top + cardRect.height / 2 - finalSceneRect.top;
+                      const fsRect = finalScene.getBoundingClientRect();
+                      const cRect = cardMiddle.getBoundingClientRect();
+                      const cx = cRect.left + cRect.width / 2 - fsRect.left;
+                      const cy = cRect.top + cRect.height / 2 - fsRect.top;
                       finalScene.style.transformOrigin = `${cx}px ${cy}px`;
                       finalScene.style.transform = "scale(80)";
                       finalScene.addEventListener('transitionend', function handlerZoomIn2() {
@@ -840,6 +1013,7 @@
                         video2.playsInline = true;
                         video2.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
                         document.body.appendChild(video2);
+
                         video2.addEventListener('play', () => {
                           createReflectionCaption(1);
                         });
@@ -847,6 +1021,7 @@
                           removeReflectionCaption();
                           markVideoWatched(1);
                         });
+
                         video2.addEventListener('loadedmetadata', () => {
                           video2.addEventListener('timeupdate', function checkTime2() {
                             if (video2.duration && video2.currentTime >= (video2.duration - 5)) {
@@ -865,6 +1040,7 @@
                                 zIndex: 9999
                               });
                               document.body.appendChild(nextButton2);
+
                               const backButton2 = document.createElement('button');
                               backButton2.id = 'back-btn-2';
                               backButton2.textContent = 'back';
@@ -879,6 +1055,7 @@
                                 zIndex: 9999
                               });
                               document.body.appendChild(backButton2);
+
                               backButton2.addEventListener('click', () => {
                                 removeReflectionCaption();
                                 backButton2.remove();
@@ -886,13 +1063,14 @@
                                 video2.pause();
                                 video2.remove();
                                 finalScene.style.transform = "scale(1)";
+
                                 finalScene.addEventListener('transitionend', function goBackToVideo1() {
                                   finalScene.removeEventListener('transitionend', goBackToVideo1);
                                   const cardVid1 = cards[0];
                                   if (!cardVid1) return;
                                   const cardRect1 = cardVid1.getBoundingClientRect();
-                                  const cardCenterX1 = cardRect1.left + cardRect1.width / 2 - finalSceneRect.left;
-                                  const cardCenterY1 = cardRect1.top + cardRect1.height / 2 - finalSceneRect.top;
+                                  const cardCenterX1 = cardRect1.left + cardRect1.width / 2 - fsRect.left;
+                                  const cardCenterY1 = cardRect1.top + cardRect1.height / 2 - fsRect.top;
                                   finalScene.style.transformOrigin = `${cardCenterX1}px ${cardCenterY1}px`;
                                   finalScene.style.transform = "scale(80)";
                                   finalScene.addEventListener('transitionend', function reEnterVideo1() {
@@ -913,6 +1091,7 @@
                                     video1again.playsInline = true;
                                     video1again.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
                                     document.body.appendChild(video1again);
+
                                     video1again.addEventListener('play', () => {
                                       createReflectionCaption(0);
                                     });
@@ -920,6 +1099,7 @@
                                       removeReflectionCaption();
                                       markVideoWatched(0);
                                     });
+
                                     let nextButton1bShown = false;
                                     video1again.addEventListener('timeupdate', () => {
                                       if (!nextButton1bShown && video1again.currentTime >= 60) {
@@ -938,6 +1118,7 @@
                                           zIndex: 9999
                                         });
                                         document.body.appendChild(nextButtonRe1);
+
                                         const backButtonRe1 = document.createElement('button');
                                         backButtonRe1.id = 'back-btn-re1';
                                         backButtonRe1.textContent = 'back';
@@ -952,6 +1133,7 @@
                                           zIndex: 9999
                                         });
                                         document.body.appendChild(backButtonRe1);
+
                                         backButtonRe1.addEventListener('click', () => {
                                           removeReflectionCaption();
                                           backButtonRe1.remove();
@@ -960,6 +1142,7 @@
                                           video1again.remove();
                                           finalScene.style.transform = "scale(1)";
                                         });
+
                                         nextButtonRe1.addEventListener('click', () => {
                                           removeReflectionCaption();
                                           backButtonRe1.remove();
@@ -967,15 +1150,17 @@
                                           video1again.pause();
                                           video1again.remove();
                                           finalScene.style.transform = "scale(1)";
+
                                           finalScene.addEventListener('transitionend', function ret1ZoomOut() {
                                             finalScene.removeEventListener('transitionend', ret1ZoomOut);
                                             const card2 = cards[1];
                                             if (!card2) return;
                                             const cardRect2 = card2.getBoundingClientRect();
-                                            const cx2 = cardRect2.left + cardRect2.width / 2 - finalSceneRect.left;
-                                            const cy2 = cardRect2.top + cardRect2.height / 2 - finalSceneRect.top;
+                                            const cx2 = cardRect2.left + cardRect2.width / 2 - fsRect.left;
+                                            const cy2 = cardRect2.top + cardRect2.height / 2 - fsRect.top;
                                             finalScene.style.transformOrigin = `${cx2}px ${cy2}px`;
                                             finalScene.style.transform = "scale(80)";
+
                                             finalScene.addEventListener('transitionend', function reEnterVideo2() {
                                               finalScene.removeEventListener('transitionend', reEnterVideo2);
                                               const video2b = document.createElement('video');
@@ -994,6 +1179,7 @@
                                               video2b.playsInline = true;
                                               video2b.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
                                               document.body.appendChild(video2b);
+
                                               video2b.addEventListener('play', () => {
                                                 createReflectionCaption(1);
                                               });
@@ -1009,6 +1195,7 @@
                                   });
                                 });
                               });
+
                               nextButton2.addEventListener('click', () => {
                                 removeReflectionCaption();
                                 backButton2.remove();
@@ -1017,16 +1204,18 @@
                                 video2.remove();
                                 finalScene.style.transition = "transform 3s ease-in-out";
                                 finalScene.style.transform = "scale(1)";
+
                                 finalScene.addEventListener('transitionend', function handlerZoomOut2() {
                                   finalScene.removeEventListener('transitionend', handlerZoomOut2);
                                   const cardForVideo3 = cards[2];
                                   if (!cardForVideo3) return;
-                                  const finalSceneRect2 = finalScene.getBoundingClientRect();
-                                  const cardRect3 = cardForVideo3.getBoundingClientRect();
-                                  const cardCenterX3 = cardRect3.left + cardRect3.width / 2 - finalSceneRect2.left;
-                                  const cardCenterY3 = cardRect3.top + cardRect3.height / 2 - finalSceneRect2.top;
+                                  const fRect2 = finalScene.getBoundingClientRect();
+                                  const cRect3 = cardForVideo3.getBoundingClientRect();
+                                  const cardCenterX3 = cRect3.left + cRect3.width / 2 - fRect2.left;
+                                  const cardCenterY3 = cRect3.top + cRect3.height / 2 - fRect2.top;
                                   finalScene.style.transformOrigin = `${cardCenterX3}px ${cardCenterY3}px`;
                                   finalScene.style.transform = "scale(80)";
+
                                   finalScene.addEventListener('transitionend', function handlerZoomIn3() {
                                     finalScene.removeEventListener('transitionend', handlerZoomIn3);
                                     const video3 = document.createElement('video');
@@ -1045,6 +1234,7 @@
                                     video3.playsInline = true;
                                     video3.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
                                     document.body.appendChild(video3);
+
                                     video3.addEventListener('play', () => {
                                       createReflectionCaption(2);
                                     });
@@ -1052,6 +1242,7 @@
                                       removeReflectionCaption();
                                       markVideoWatched(2);
                                     });
+
                                     video3.addEventListener('loadedmetadata', () => {
                                       video3.addEventListener('timeupdate', function checkTime3() {
                                         if (video3.currentTime >= 98) {
@@ -1070,6 +1261,7 @@
                                             zIndex: 9999
                                           });
                                           document.body.appendChild(nextButton3);
+
                                           const backButton3 = document.createElement('button');
                                           backButton3.id = 'back-btn-3';
                                           backButton3.textContent = 'back';
@@ -1084,6 +1276,7 @@
                                             zIndex: 9999
                                           });
                                           document.body.appendChild(backButton3);
+
                                           backButton3.addEventListener('click', () => {
                                             removeReflectionCaption();
                                             backButton3.remove();
@@ -1091,6 +1284,7 @@
                                             video3.pause();
                                             video3.remove();
                                             finalScene.style.transform = "scale(1)";
+
                                             finalScene.addEventListener('transitionend', function backToVideo2() {
                                               finalScene.removeEventListener('transitionend', backToVideo2);
                                               const card2again = cards[1];
@@ -1101,6 +1295,7 @@
                                               const ccy2 = c2Rect.top + c2Rect.height/2 - fsRect.top;
                                               finalScene.style.transformOrigin = `${ccx2}px ${ccy2}px`;
                                               finalScene.style.transform = "scale(80)";
+
                                               finalScene.addEventListener('transitionend', function reZoomVid2() {
                                                 finalScene.removeEventListener('transitionend', reZoomVid2);
                                                 const video2re = document.createElement('video');
@@ -1119,6 +1314,7 @@
                                                 video2re.playsInline = true;
                                                 video2re.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
                                                 document.body.appendChild(video2re);
+
                                                 video2re.addEventListener('play', () => {
                                                   createReflectionCaption(1);
                                                 });
@@ -1129,6 +1325,7 @@
                                               });
                                             });
                                           });
+
                                           nextButton3.addEventListener('click', () => {
                                             removeReflectionCaption();
                                             backButton3.remove();
@@ -1136,16 +1333,18 @@
                                             video3.pause();
                                             video3.remove();
                                             finalScene.style.transform = "scale(1)";
+
                                             finalScene.addEventListener('transitionend', function handlerZoomOut3() {
                                               finalScene.removeEventListener('transitionend', handlerZoomOut3);
                                               const cardForVideo4 = cards[3];
                                               if (!cardForVideo4) return;
-                                              const finalSceneRect3 = finalScene.getBoundingClientRect();
-                                              const cardRect4 = cardForVideo4.getBoundingClientRect();
-                                              const cardCenterX4 = cardRect4.left + cardRect4.width / 2 - finalSceneRect3.left;
-                                              const cardCenterY4 = cardRect4.top + cardRect4.height / 2 - finalSceneRect3.top;
+                                              const fsRect3 = finalScene.getBoundingClientRect();
+                                              const cRect4 = cardForVideo4.getBoundingClientRect();
+                                              const cardCenterX4 = cRect4.left + cRect4.width / 2 - fsRect3.left;
+                                              const cardCenterY4 = cRect4.top + cRect4.height / 2 - fsRect3.top;
                                               finalScene.style.transformOrigin = `${cardCenterX4}px ${cardCenterY4}px`;
                                               finalScene.style.transform = "scale(80)";
+
                                               finalScene.addEventListener('transitionend', function handlerZoomIn4() {
                                                 finalScene.removeEventListener('transitionend', handlerZoomIn4);
                                                 const video4 = document.createElement('video');
@@ -1165,6 +1364,7 @@
                                                 video4.volume = 1.0;
                                                 video4.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
                                                 document.body.appendChild(video4);
+
                                                 video4.addEventListener('play', () => {
                                                   createReflectionCaption(3);
                                                 });
@@ -1185,6 +1385,7 @@
                                                         zIndex: 9999
                                                       });
                                                       document.body.appendChild(next4);
+
                                                       const back4 = document.createElement('button');
                                                       back4.id = 'back-btn-4';
                                                       back4.textContent = 'back';
@@ -1199,6 +1400,7 @@
                                                         zIndex: 9999
                                                       });
                                                       document.body.appendChild(back4);
+
                                                       back4.addEventListener('click', () => {
                                                         removeReflectionCaption();
                                                         back4.remove();
@@ -1207,6 +1409,7 @@
                                                         video4.remove();
                                                         finalScene.style.transform = "scale(1)";
                                                       });
+
                                                       next4.addEventListener('click', () => {
                                                         removeReflectionCaption();
                                                         back4.remove();
@@ -1214,6 +1417,7 @@
                                                         video4.pause();
                                                         video4.remove();
                                                         finalScene.style.transform = "scale(1)";
+
                                                         finalScene.addEventListener('transitionend', function zoomToVid5() {
                                                           finalScene.removeEventListener('transitionend', zoomToVid5);
                                                           const cardForVideo5 = cards[4];
@@ -1224,6 +1428,7 @@
                                                           const cyf = rect5.top + rect5.height / 2 - fsRect.top;
                                                           finalScene.style.transformOrigin = `${cxf}px ${cyf}px`;
                                                           finalScene.style.transform = "scale(80)";
+
                                                           finalScene.addEventListener('transitionend', function handlerZoomIn5() {
                                                             finalScene.removeEventListener('transitionend', handlerZoomIn5);
                                                             const video5 = document.createElement('video');
@@ -1243,6 +1448,7 @@
                                                             video5.volume = 1.0;
                                                             video5.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
                                                             document.body.appendChild(video5);
+
                                                             video5.addEventListener('play', () => {
                                                               createReflectionCaption(4);
                                                             });
@@ -1250,6 +1456,7 @@
                                                               removeReflectionCaption();
                                                               markVideoWatched(4);
                                                             });
+
                                                             let nextButton5Shown = false;
                                                             video5.addEventListener('timeupdate', () => {
                                                               if (!nextButton5Shown && video5.currentTime >= 122) {
@@ -1268,6 +1475,7 @@
                                                                   zIndex: 9999
                                                                 });
                                                                 document.body.appendChild(next5);
+
                                                                 const back5 = document.createElement('button');
                                                                 back5.id = 'back-btn-5';
                                                                 back5.textContent = 'back';
@@ -1282,6 +1490,7 @@
                                                                   zIndex: 9999
                                                                 });
                                                                 document.body.appendChild(back5);
+
                                                                 back5.addEventListener('click', () => {
                                                                   removeReflectionCaption();
                                                                   next5.remove();
@@ -1290,6 +1499,7 @@
                                                                   video5.remove();
                                                                   finalScene.style.transform = "scale(1)";
                                                                 });
+
                                                                 next5.addEventListener('click', () => {
                                                                   removeReflectionCaption();
                                                                   next5.remove();
@@ -1298,6 +1508,7 @@
                                                                   video5.remove();
                                                                   markVideoWatched(4);
                                                                   finalScene.style.transform = "scale(1)";
+
                                                                   finalScene.addEventListener('transitionend', function zoomToVid6() {
                                                                     finalScene.removeEventListener('transitionend', zoomToVid6);
                                                                     const cardForVideo6 = cards[5];
@@ -1308,6 +1519,7 @@
                                                                     const cysix = rect6.top + rect6.height / 2 - fsRect.top;
                                                                     finalScene.style.transformOrigin = `${cxsix}px ${cysix}px`;
                                                                     finalScene.style.transform = "scale(80)";
+
                                                                     finalScene.addEventListener('transitionend', function handlerZoomIn6() {
                                                                       finalScene.removeEventListener('transitionend', handlerZoomIn6);
                                                                       const video6 = document.createElement('video');
@@ -1326,9 +1538,11 @@
                                                                       video6.playsInline = true;
                                                                       video6.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
                                                                       document.body.appendChild(video6);
+
                                                                       video6.addEventListener('play', () => {
                                                                         createReflectionCaption(5);
                                                                       });
+
                                                                       const catalogBtn = document.createElement('button');
                                                                       catalogBtn.id = 'catalog-btn-6';
                                                                       catalogBtn.innerText = 'catalog';
@@ -1343,6 +1557,7 @@
                                                                         zIndex: 9999
                                                                       });
                                                                       document.body.appendChild(catalogBtn);
+
                                                                       const backBtn6 = document.createElement('button');
                                                                       backBtn6.id = 'back-btn-6';
                                                                       backBtn6.innerText = 'back';
@@ -1357,6 +1572,7 @@
                                                                         zIndex: 9999
                                                                       });
                                                                       document.body.appendChild(backBtn6);
+
                                                                       backBtn6.onclick = () => {
                                                                         removeReflectionCaption();
                                                                         catalogBtn.remove();
@@ -1364,6 +1580,7 @@
                                                                         video6.pause();
                                                                         video6.remove();
                                                                         finalScene.style.transform = "scale(1)";
+
                                                                         finalScene.addEventListener('transitionend', function goBackToVideo5() {
                                                                           finalScene.removeEventListener('transitionend', goBackToVideo5);
                                                                           const cardVid5 = cards[4];
@@ -1373,6 +1590,7 @@
                                                                           const centerY5 = cardRect5.top + cardRect5.height / 2 - fsRect.top;
                                                                           finalScene.style.transformOrigin = `${centerX5}px ${centerY5}px`;
                                                                           finalScene.style.transform = "scale(80)";
+
                                                                           finalScene.addEventListener('transitionend', function reEnterVideo5() {
                                                                             finalScene.removeEventListener('transitionend', reEnterVideo5);
                                                                             const video5again = document.createElement('video');
@@ -1392,6 +1610,7 @@
                                                                             video5again.volume = 1.0;
                                                                             video5again.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
                                                                             document.body.appendChild(video5again);
+
                                                                             video5again.addEventListener('play', () => {
                                                                               createReflectionCaption(4);
                                                                             });
@@ -1402,6 +1621,7 @@
                                                                           });
                                                                         });
                                                                       };
+
                                                                       catalogBtn.onclick = () => {
                                                                         removeReflectionCaption();
                                                                         catalogBtn.remove();
@@ -1410,8 +1630,9 @@
                                                                         video6.remove();
                                                                         markVideoWatched(5);
                                                                         finalScene.style.transform = "scale(1)";
-                                                                        unlockCatalog();
+                                                                        // catalog is already visible & unlocked
                                                                       };
+
                                                                       video6.addEventListener('ended', () => {
                                                                         removeReflectionCaption();
                                                                         markVideoWatched(5);
@@ -1419,7 +1640,7 @@
                                                                         catalogBtn.remove();
                                                                         backBtn6.remove();
                                                                         finalScene.style.transform = "scale(1)";
-                                                                        unlockCatalog();
+                                                                        // same, show catalog
                                                                       });
                                                                     });
                                                                   });
@@ -1433,6 +1654,7 @@
                                                     }
                                                   }
                                                 }, 500);
+
                                                 video4.addEventListener('ended', () => {
                                                   removeReflectionCaption();
                                                   markVideoWatched(3);
@@ -1456,13 +1678,12 @@
               });
             });
           });
-          setTimeout(() => {
-            finalScene.style.opacity = '1';
-          }, 50);
         }, 2000);
       }
+
+      /* 6.8) schedule the fade-out once music is near the end */
       function scheduleFadeOut() {
-        const fadeTimeOffset = 6;
+        const fadeTimeOffset = 6; // fade out 6s before track ends
         const remainingTime = backgroundMusic.duration - fadeTimeOffset - backgroundMusic.currentTime;
         if (remainingTime > 0) {
           setTimeout(fadeOutScene, remainingTime * 1000);
@@ -1470,6 +1691,7 @@
           fadeOutScene();
         }
       }
+
       if (backgroundMusic.readyState > 0) {
         scheduleFadeOut();
       } else {
@@ -1477,10 +1699,5 @@
       }
     });
   </script>
-  <style>
-    #final-scene {
-      transition: opacity 2s ease-in-out, transform 5s ease-in-out !important;
-    }
-  </style>
 </body>
 </html>
