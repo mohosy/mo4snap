@@ -2,1699 +2,315 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>O Tunnel with Centered Starfield</title>
-  <!-- include a high quality font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-
+  <title>Combined Scene1 + Scene2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* global reset and styling */
-    html, body {
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Anton&display=swap');
+    body, html {
       margin: 0;
-      padding: 0;
-      width: 100%;
       height: 100%;
-      background: black;
+      background-color: black;
       overflow: hidden;
-    }
-
-    /* scene container with extra violent camera shake for the initial 5 seconds */
-    .scene {
-      width: 100vw;
-      height: 100vh;
-      perspective: 1200px;
-      position: relative;
-      transform-style: preserve-3d;
       display: flex;
       align-items: center;
       justify-content: center;
-      animation: violentShake 5s ease-in-out;
-    }
-
-    @keyframes violentShake {
-      0%   { transform: translate(0, 0); }
-      20%  { transform: translate(-30px, 30px); }
-      40%  { transform: translate(30px, -30px); }
-      60%  { transform: translate(-30px, -30px); }
-      80%  { transform: translate(30px, 30px); }
-      100% { transform: translate(0, 0); }
-    }
-
-    /* star field container (for the intro scene) */
-    #stars-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
-
-    /* shooting star style (intro) */
-    .star {
-      position: absolute;
-      width: 20px;
-      height: 2px;
-      background: linear-gradient(to right, white, transparent);
-      opacity: 0;
-      animation: starZoom linear infinite;
-    }
-    @keyframes starZoom {
-      0% {
-        opacity: 1;
-        transform: rotate(var(--rotation)) translateX(0);
-      }
-      100% {
-        opacity: 0;
-        transform: rotate(var(--rotation)) translateX(var(--offset));
-      }
-    }
-
-    /* "mo" text (zoom in target) */
-    #mo-container {
-      position: absolute;
-      z-index: 3;
-      animation: zoomIn 12s 5s ease-in-out forwards; /* slowed from 7s to 12s */
-    }
-    #mo-text {
       color: white;
-      font-size: 80px;
-      font-family: Arial, sans-serif;
     }
-    @keyframes zoomIn {
-      0%   { transform: scale(1); opacity: 1; }
-      99%  { transform: scale(80); opacity: 1; }
-      100% { transform: scale(80); opacity: 0; }
-    }
-
-    /* flash effect for tunnel entry */
-    #flash {
+    #introVideo {
+      display: none;
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: white;
-      pointer-events: none;
-      opacity: 0;
-      z-index: 2;
-      animation: flashAnim 0.5s 6s forwards;
+      max-height: 100%;
+      max-width: 100%;
+      z-index: 15;
     }
-    @keyframes flashAnim {
-      0% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-
-    /* tunnel container */
-    #tunnel-container {
+    #playOverlay {
+      background-color: black;
       position: absolute;
-      width: 100%;
-      height: 100%;
-      transform-style: preserve-3d;
-      z-index: 1;
-    }
-    /* common tunnel base style */
-    .tunnel {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) translateZ(-3500px) rotateZ(0deg);
-      transform-style: preserve-3d;
-    }
-    /* main tunnel animation */
-    #tunnel {
-      animation: tunnelTravel 15s 6s linear forwards; /* slowed from 15s to 25s */
-    }
-    @keyframes tunnelTravel {
-      0%   { transform: translate(-50%, -50%) translateZ(-3500px) rotateZ(0deg); }
-      100% { transform: translate(-50%, -50%) translateZ(0) rotateZ(720deg); }
-    }
-
-    /* tunnel rings: each "o" with a signature pink gradient */
-    .tunnel-ring {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform-style: preserve-3d;
-      transform-origin: center;
-      font-size: 40px;
-      font-family: Arial, sans-serif;
-      border-radius: 50%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       display: flex;
-      align-items: center;
       justify-content: center;
-      width: 80px;
-      height: 80px;
-    }
-
-    /* final scene container styling for catalog home page */
-    #final-scene {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: black;
-      color: white;
-      display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 2s ease-in-out, transform 3s ease-in-out; /* changed transform from 1.2s to 3s */
-      z-index: 5;
-      transform: scale(1);
-      font-family: 'Montserrat', sans-serif;
-      will-change: transform;
-      backface-visibility: hidden;
+      z-index: 20;
     }
-
-    /* starfield in final scene */
-    #final-stars-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .final-star {
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      background: white;
-      border-radius: 50%;
-      opacity: 0.8;
-      animation: twinkle 3s infinite ease-in-out alternate;
-    }
-    @keyframes twinkle {
-      0%   { opacity: 0.2; }
-      100% { opacity: 1; }
-    }
-    .shooting-star {
-      position: absolute;
-      width: 20px;
-      height: 2px;
-      background: linear-gradient(to right, white, transparent);
-      opacity: 0;
-      animation: shootingStarAnim linear infinite;
-    }
-    @keyframes shootingStarAnim {
-      0% {
-        opacity: 1;
-        transform: rotate(var(--rotation)) translateX(0);
-      }
-      100% {
-        opacity: 0;
-        transform: rotate(var(--rotation)) translateX(var(--offset));
-      }
-    }
-
-    #final-scene h1 {
-      margin: 0 0 20px;
-      font-size: 2.8em;
-      text-align: center;
-      text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
-      z-index: 1;
-    }
-    #final-scene p {
-      margin: 0 0 20px;
-      font-size: 1.2em;
-      text-align: center;
-      z-index: 1;
-    }
-
-    /* play button styling - changed to yellow */
-    #final-scene #play-btn {
-      margin-bottom: 40px;
-      padding: 10px 20px;
-      font-size: 1em;
-      cursor: pointer;
+    #playOverlay button {
+      background-color: transparent;
       border: none;
-      border-radius: 5px;
-      background: #FFD700; /* bright yellow */
-      color: black;        /* black text for contrast */
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-      z-index: 1;
+      font-size: 100px;
+      color: white;
+      cursor: pointer;
     }
-
-    #final-scene #cards-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 40px;
-      width: 80%;
-      max-width: 800px;
-      z-index: 1;
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 5;
     }
-    #final-scene .card {
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 15px;
-      height: 250px;
-      backdrop-filter: blur(5px);
+    #finalMessageOverlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: black;
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* hide native video controls */
-    video::-webkit-media-controls,
-    video::-webkit-media-controls-enclosure {
-      display: none !important;
-    }
-
-    /* reflection caption styling */
-    #video-reflection-caption {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 15px 20px;
-      background-color: yellow;
-      color: black;
-      font-size: 1.2em;
-      font-weight: bold;
-      border-radius: 6px;
-      z-index: 9999;
-    }
-
-    /* the catalog controls appear only after all 6 videos are watched */
-    #catalog-controls {
-      display: none; /* hidden by default */
-      background: rgba(255, 255, 255, 0.1);
-      padding: 10px;
-      margin: 30px auto;
-      border-radius: 6px;
-      width: 80%;
-      max-width: 700px;
-      z-index: 10;
-    }
-    #catalog-controls h2 {
-      margin-top: 0;
-    }
-    #chapter-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .chapter-card {
-      flex: 1 1 45%;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.1);
+      z-index: 100;
+      font-family: 'Poppins', sans-serif;
+      font-size: 48px;
+      color: white;
     }
   </style>
 </head>
 <body>
-  <div class="scene">
-    <!-- star field background (intro) -->
-    <div id="stars-container"></div>
-    
-    <div id="mo-container">
-      <div id="mo-text">
-        <span>M</span><span id="o-target">o</span>
-      </div>
-    </div>
-    <div id="flash"></div>
-    <div id="tunnel-container">
-      <!-- main tunnel -->
-      <div class="tunnel" id="tunnel"></div>
-    </div>
+
+  <div id="playOverlay">
+    <button id="startBtn">▶</button>
   </div>
 
-  <!-- background music -->
-  <audio id="background-music" src="zoom-in.mp3" autoplay></audio>
+  <video id="introVideo" src="intro.MOV" playsinline></video>
+  <audio id="audio" src="get-it-together.mp3"></audio>
+  <canvas id="animationCanvas"></canvas>
 
   <script>
-    /***************************************************************
-     * 1) Define the lifeChapters array + localStorage watchers
-     ***************************************************************/
-     const lifeChapters = [
-     {
-  title: "Intro: Working 3 Jobs",
-  filename: "data1.mp4",
-  category: "Work",
-  reflection: "This chapter was all about dedication. I was working three jobs — Code Ninjas, a local boba shop, and as an AI Developer at Pasadena City College — to fund my startup, IRL. I wasn’t doing it out of desperation. I was doing it because I believed in the vision. I’ve invested over $18,000 of my own money to make it real.",
-  impact: 80
-},
-  {
-    title: "Burnout & Reflection",
-    filename: "data2.mp4",
-    category: "Mental Health",
-    reflection: "At one point, I was completely drained. Working nonstop, fasting for Ramadan, and trying to keep up with life. I felt like I was disappearing into my responsibilities. At one point after a shift, I ran across the street to the PCC library, went to the bottom floor and just cried.",
-    impact: 85
-  },
-  {
-    title: "Moment of Clarity",
-    filename: "data3.mp4",
-    category: "Realization",
-    reflection: "One morning around 8:30 AM, I was unlocking the boba shop like usual. As I walked across the lot, I passed a construction crew laying tile on their hands and knees. We were all out there early, putting in work, just trying to get through the day. But something about that moment stopped me. It made me realize I had been moving on autopilot, trading my time for $17 an hour without asking if that made sense for the kind of work I wanted to do. That moment didn’t make me feel better than anyone else — it just made me wake up. I knew I had to start building something different.",
-    impact: 90
-  },
-  {
-    title: "The Escape Plan",
-    filename: "data4.mp4",
-    category: "Breakthrough",
-    reflection: "That moment pushed me to start building GPTify — a tool that lets colleges offer AI-powered student support. I coded every night after work to make it happen.",
-    impact: 95
-  },
-  {
-    title: "Building GPTify",
-    filename: "data5.mp4",
-    category: "Creation",
-    reflection: "I turned my skills into something real. I built features, pitched schools, and watched my side hustle start to grow. You can try it now at LansoAI.com.",
-    impact: 92
-  },
-  {
-  title: "Moving Forward",
-  filename: "data6.mp4",
-  category: "Results",
-  reflection: "Today, GPTify is being used by real students. Pasadena City College recently asked me to build a campus app like the one used at SMC — and I’m also working on IRL, a Gen Z social app backed by my first VC. I just got accepted to transfer to UC Irvine’s Computer Science Honors Program, and earlier I was featured on Forbes for founding a nonprofit that teaches kids with learning disabilities how to code. This chapter is proof that my time, my freedom, and my future are now in my hands.",
-  impact: 100
-  }
+    const canvas = document.getElementById('animationCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-];
+    const startBtn = document.getElementById('startBtn');
+    const overlay = document.getElementById('playOverlay');
+    const introVideo = document.getElementById('introVideo');
+    const audio = document.getElementById('audio');
 
+    let animationId;
+    let startTime;
+    let finalSequenceTriggered = false;
 
-    function markVideoWatched(index) {
-      let watched = JSON.parse(localStorage.getItem('watchedChapters')) || {};
-      watched[index] = true;
-      localStorage.setItem('watchedChapters', JSON.stringify(watched));
-      checkAllVideosWatched();
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    function checkAllVideosWatched() {
-      let watched = JSON.parse(localStorage.getItem('watchedChapters')) || {};
-      let count = 0;
-      for (let key in watched) {
-        if (watched[key]) count++;
-      }
-      // if user finished all 6, reveal the catalog controls
-      if (count === 6) {
-        const catalogControls = document.getElementById('catalog-controls');
-        if (catalogControls) catalogControls.style.display = 'block';
-        renderChapters();
+    function clubLights(intensity = 1, lightsCount = 8) {
+      ctx.fillStyle = `rgba(31,122,255,${0.3 * intensity + 0.2})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = `rgba(255,255,255,${0.5 * intensity})`;
+      ctx.lineWidth = 5;
+      for (let i = 0; i < lightsCount; i++) {
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, 0);
+        ctx.lineTo(Math.random() * canvas.width, canvas.height);
+        ctx.stroke();
       }
     }
 
-    /***************************************************************
-     * 2) Reflection caption logic
-     ***************************************************************/
-    function createReflectionCaption(index) {
-      removeReflectionCaption();
-      const captionDiv = document.createElement('div');
-      captionDiv.id = 'video-reflection-caption';
-      captionDiv.textContent = lifeChapters[index].reflection;
-      document.body.appendChild(captionDiv);
-    }
-    function removeReflectionCaption() {
-      const existing = document.getElementById('video-reflection-caption');
-      if (existing) existing.remove();
+    function rippleEffect(progress) {
+      const maxRadius = Math.max(canvas.width, canvas.height);
+      ctx.strokeStyle = `rgba(173,216,230,${1 - progress})`;
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.arc(canvas.width / 2, canvas.height / 2, maxRadius * progress, 0, 2 * Math.PI);
+      ctx.stroke();
     }
 
-    /***************************************************************
-     * 3) The catalog controls (filter, sort, search)
-     ***************************************************************/
-    function renderChapters() {
-      const categorySelect = document.getElementById('category-select');
-      const selectedCategory = categorySelect ? categorySelect.value : 'All';
-
-      const searchInput = document.getElementById('search-input');
-      const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-
-      let displayed = lifeChapters.slice();
-
-      // filter by category
-      if (selectedCategory !== 'All') {
-        displayed = displayed.filter(function(chap) {
-          return chap.category === selectedCategory;
-        });
-      }
-
-      // search by title/reflection
-      displayed = displayed.filter(function(chap) {
-        const t = chap.title.toLowerCase();
-        const r = chap.reflection.toLowerCase();
-        return (t.includes(searchTerm) || r.includes(searchTerm));
-      });
-
-      const listDiv = document.getElementById('chapter-list');
-      if (!listDiv) return;
-
-      listDiv.innerHTML = '';
-
-      for (let i = 0; i < displayed.length; i++) {
-        const c = displayed[i];
-        const card = document.createElement('div');
-        card.className = 'chapter-card';
-
-        const fileEl = document.createElement('p');
-        fileEl.textContent = "filename: " + c.filename;
-        card.appendChild(fileEl);
-
-        const titleEl = document.createElement('h3');
-        titleEl.textContent = c.title;
-        card.appendChild(titleEl);
-
-        const catEl = document.createElement('p');
-        catEl.textContent = "category: " + c.category;
-        card.appendChild(catEl);
-
-        const impactEl = document.createElement('p');
-        impactEl.textContent = "impact: " + c.impact;
-        card.appendChild(impactEl);
-
-        const refEl = document.createElement('p');
-        refEl.textContent = "reflection: " + c.reflection;
-        card.appendChild(refEl);
-
-        listDiv.appendChild(card);
-      }
-    }
-
-    function sortByImpactDesc() {
-      lifeChapters.sort(function(a, b) {
-        return b.impact - a.impact;
-      });
-      renderChapters();
-    }
-
-    /***************************************************************
-     * 4) Original animation code + next/back logic
-     ***************************************************************/
-    window.addEventListener('DOMContentLoaded', () => {
-      // check if user previously watched all
-      checkAllVideosWatched();
-
-      // hook up filter/sort/search if they exist
-      const catSelect = document.getElementById('category-select');
-      const sortBtn = document.getElementById('sort-impact-btn');
-      const searchInput = document.getElementById('search-input');
-
-      if (catSelect) catSelect.addEventListener('change', renderChapters);
-      if (sortBtn) sortBtn.addEventListener('click', sortByImpactDesc);
-      if (searchInput) searchInput.addEventListener('keyup', renderChapters);
-
-      const oTarget = document.getElementById('o-target');
-      const moContainer = document.getElementById('mo-container');
-      const tunnel1 = document.getElementById('tunnel');
-      const starsContainer = document.getElementById('stars-container');
-      const backgroundMusic = document.getElementById('background-music');
-
-      // ramp up volume for background music gradually
-      backgroundMusic.volume = 0.1;
-      const volumeInterval = setInterval(() => {
-        if (backgroundMusic.volume < 1.0) {
-          backgroundMusic.volume = Math.min(1.0, backgroundMusic.volume + 0.036);
-        } else {
-          clearInterval(volumeInterval);
+    function pianoKeysEffect(keys, progress) {
+      const keyWidth = canvas.width / keys;
+      const keyHeight = canvas.height / 3;
+      for (let i = 0; i < keys; i++) {
+        if (progress > i / keys) {
+          ctx.fillStyle = 'rgba(255,255,255,0.8)';
+          ctx.fillRect(i * keyWidth, canvas.height / 2 - keyHeight / 2, keyWidth - 5, keyHeight);
         }
-      }, 200);
+      }
+    }
 
-      // center zoom on the "o"
-      const oRect = oTarget.getBoundingClientRect();
-      const moRect = moContainer.getBoundingClientRect();
-      const xOrigin = oRect.left + oRect.width / 2 - moRect.left;
-      const yOrigin = oRect.top + oRect.height / 2 - moRect.top;
-      moContainer.style.transformOrigin = `${xOrigin}px ${yOrigin}px`;
+    function shardFlowerEffect(progress) {
+      const shards = 12;
+      ctx.save();
+      ctx.translate(canvas.width/2, canvas.height/2);
+      for(let i = 0; i < shards; i++){
+        ctx.rotate((Math.PI * 2 / shards));
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.lineTo(-20, -canvas.height * 0.4 * progress);
+        ctx.lineTo(20, -canvas.height * 0.4 * progress);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(255,255,255,${progress})`;
+        ctx.fill();
+      }
+      ctx.restore();
+    }
 
-      // generate tunnel rings
-      const generateTunnelRings = (tunnelElem) => {
-        const ringCount = 350;
-        for (let i = 0; i < ringCount; i++) {
-          const ring = document.createElement('div');
-          ring.className = 'tunnel-ring';
-          const depth = i * 10;
-          ring.style.transform = `translate(-50%, -50%) translateZ(${depth}px)`;
-          const lightness = 90 - (i / ringCount) * 50;
-          ring.style.color = `hsl(330, 70%, ${lightness}%)`;
-          ring.style.opacity = 1 - (i / ringCount) * 0.5;
-          ring.textContent = 'o';
-          tunnelElem.appendChild(ring);
+    function animate() {
+      const elapsed = (Date.now() - startTime) / 1000;
+      clearCanvas();
+
+      if (elapsed < 6.15) {
+        ctx.fillStyle = 'rgba(0,0,0,0.9)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      } else {
+        let lightsCount = 8;
+        if (elapsed >= 217 && elapsed <= 225) {
+          lightsCount = Math.max(8 - Math.floor((elapsed - 217)), 0);
+          ctx.fillStyle = `rgba(0,0,0,${(elapsed - 217)/8 * 0.5})`;
+        }
+        clubLights(1, lightsCount);
+
+        if ((elapsed >= 82 && elapsed <= 98) || (elapsed >= 177 && elapsed <= 193)) {
+          shardFlowerEffect(Math.sin(Math.PI * (elapsed % 16) / 16));
+        }
+
+        if ((elapsed >= 53 && elapsed <= 82) || (elapsed >= 98 && elapsed <= 115)) {
+          clubLights(2);
+        }
+
+        const guitarTimestamps = [
+          14,18,29,34,45,50,61,65,77,81,
+          108,124,128,139,144,155,159,171,
+          175,194,201,206,217,221
+        ];
+        guitarTimestamps.forEach(time => {
+          const diff = elapsed - time;
+          if (diff >= 0 && diff <= 1.5) {
+            rippleEffect(diff / 1.5);
+          }
+        });
+
+        if (elapsed >= 59 && elapsed <= 62) pianoKeysEffect(7, (elapsed - 59) / 3);
+        if (elapsed >= 68 && elapsed <= 70) pianoKeysEffect(4, (elapsed - 68) / 2);
+        if (elapsed >= 74 && elapsed <= 77) pianoKeysEffect(15, (elapsed - 74) / 3);
+
+        if (elapsed >= 22.5 && elapsed <= 27.5) {
+          ctx.font = '70px Poppins, sans-serif';
+          ctx.fillStyle = `rgba(255,255,255,${1 - Math.abs(25 - elapsed)})`;
+          ctx.textAlign = 'center';
+          ctx.fillText("hello", canvas.width / 2, canvas.height / 2);
+        }
+
+        // changed text color to black
+        if (elapsed >= 77.09 && elapsed <= 82.09) {
+          ctx.font = '50px Poppins, sans-serif';
+          ctx.fillStyle = '';
+          ctx.textAlign = '';
+          ctx.fillText(
+            "",
+            canvas.width / 2,
+            canvas.height / 2 + 100
+          );
+        }
+      }
+
+      animationId = requestAnimationFrame(animate);
+    }
+
+    function finalSequence() {
+      cancelAnimationFrame(animationId);
+      canvas.style.display = 'none';
+
+      const finalMessageOverlay = document.createElement('div');
+      finalMessageOverlay.id = 'finalMessageOverlay';
+      finalMessageOverlay.innerText = "this is my story,";
+      document.body.appendChild(finalMessageOverlay);
+
+      setTimeout(() => {
+        document.body.innerHTML = ''; // wipe scene 1
+        startScene2(); // fetch scene 2
+      }, 3000);
+    }
+
+    function startScene2() {
+      fetch("scene2.html")
+        .then(res => res.text())
+        .then(html => {
+          document.open();
+          document.write(html);
+          document.close();
+        });
+    }
+
+    startBtn.onclick = () => {
+      overlay.style.display = 'none';
+      introVideo.style.display = 'block';
+      introVideo.currentTime = 0;
+      introVideo.play();
+
+      const sneakStart = 95.69;
+      const sneakEnd = 102.52;
+      const sneakPeek = new Audio('get-it-together.mp3');
+      sneakPeek.volume = 0.2;
+      setTimeout(() => {
+        sneakPeek.currentTime = 0;
+        sneakPeek.play();
+      }, sneakStart * 1000);
+      setTimeout(() => {
+        sneakPeek.pause();
+        sneakPeek.currentTime = 0;
+      }, sneakEnd * 1000);
+
+      introVideo.ontimeupdate = () => {
+        // ✅ display "correction" message at 77.09s (with black text now)
+        if (!document.getElementById('correctionText') && introVideo.currentTime >= 77.09 && introVideo.currentTime < 80) {
+          const msg = document.createElement('div');
+          msg.id = 'correctionText';
+          msg.innerText = "Correction: AI was used for the HTML/CSS and videos";
+          msg.style.position = "fixed";
+          msg.style.top = "50%";
+          msg.style.left = "50%";
+          msg.style.transform = "translate(-50%, -50%)";
+          // changed text to black
+          msg.style.color = "black";
+          msg.style.backgroundColor = "yellow";
+          msg.style.padding = "12px 20px";
+          msg.style.borderRadius = "8px";
+          msg.style.fontSize = "24px";
+          msg.style.fontFamily = "'Poppins', sans-serif";
+          msg.style.zIndex = "9999";
+          msg.style.textAlign = "center";
+          document.body.appendChild(msg);
+
+          setTimeout(() => {
+            msg.remove();
+          }, 3000);
+        }
+
+        // trigger Scene 2 at end
+        if (introVideo.currentTime >= 128.90) {
+          introVideo.pause();
+          introVideo.style.display = 'none';
+          audio.currentTime = 0;
+
+          const syncStart = Date.now();
+
+          audio.onplay = () => {
+            startTime = syncStart;
+            animate();
+          };
+
+          audio.onended = () => {
+            if (!finalSequenceTriggered) {
+              finalSequenceTriggered = true;
+              finalSequence();
+            }
+          };
+
+          // volume adjustments: last 25s = louder
+          audio.ontimeupdate = () => {
+            const remaining = audio.duration - audio.currentTime;
+            if (remaining <= 25) {
+              audio.volume = 1.0; // blast it
+            } else {
+              audio.volume = 0.7; // normal level
+            }
+          };
+
+          audio.play();
         }
       };
-      generateTunnelRings(tunnel1);
-
-      // generate star field for the intro scene
-      const starCount = 100;
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      for (let i = 0; i < starCount; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        let posX, posY;
-        if (Math.random() < 0.2) {
-          posX = centerX + (Math.random() * 40 - 20);
-          posY = centerY + (Math.random() * 40 - 20);
-        } else {
-          posX = Math.random() * window.innerWidth;
-          posY = Math.random() * window.innerHeight;
-        }
-        star.style.left = `${posX}px`;
-        star.style.top = `${posY}px`;
-        const angle = Math.atan2(posY - centerY, posX - centerX);
-        const angleDeg = angle * 180 / Math.PI;
-        star.style.setProperty('--rotation', `${angleDeg}deg`);
-        star.style.setProperty('--offset', `500px`);
-        const duration = 1.5 + Math.random() * 1.5;
-        star.style.animationDuration = `${duration}s`;
-        const delay = 6 + Math.random();
-        star.style.animationDelay = `${delay}s`;
-        starsContainer.appendChild(star);
-      }
-
-      // timeline management for tunnel and stars
-      setTimeout(() => {
-        tunnel1.style.display = "none";
-        const stars = document.querySelectorAll('.star');
-        const accelerationInterval = setInterval(() => {
-          stars.forEach(star => {
-            let currentDuration = parseFloat(getComputedStyle(star).animationDuration);
-            let newDuration = Math.max(0.2, currentDuration * 0.9);
-            star.style.animationDuration = newDuration + "s";
-          });
-        }, 500);
-        setTimeout(() => {
-          clearInterval(accelerationInterval);
-        }, (38000 - 21000));
-      }, 21000);
-
-      backgroundMusic.addEventListener('timeupdate', () => {
-        if (backgroundMusic.currentTime >= 21 && tunnel1.style.display !== "none") {
-          tunnel1.style.display = "none";
-          const stars = document.querySelectorAll('.star');
-          const accelerationInterval = setInterval(() => {
-            stars.forEach(star => {
-              let currentDuration = parseFloat(getComputedStyle(star).animationDuration);
-              let newDuration = Math.max(0.2, currentDuration * 0.9);
-              star.style.animationDuration = newDuration + "s";
-            });
-          }, 500);
-          setTimeout(() => {
-            clearInterval(accelerationInterval);
-          }, (38000 - 21000));
-        }
-      });
-
-      // fade out main scene, then show catalog Final Scene (home)
-      function fadeOutScene() {
-        const scene = document.querySelector('.scene');
-        scene.style.transition = 'opacity 2s';
-        scene.style.opacity = '0';
-
-        setTimeout(() => {
-          const finalScene = document.createElement('div');
-          finalScene.id = 'final-scene';
-
-          // star container for final scene
-          const finalStarsContainer = document.createElement('div');
-          finalStarsContainer.id = 'final-stars-container';
-          finalScene.appendChild(finalStarsContainer);
-
-          // generate random stars in final scene
-          const finalStarCount = 80;
-          for (let i = 0; i < finalStarCount; i++) {
-            const star = document.createElement('div');
-            star.className = 'final-star';
-            const x = Math.random() * 100;
-            const y = Math.random() * 100;
-            star.style.left = x + '%';
-            star.style.top = y + '%';
-            finalStarsContainer.appendChild(star);
-          }
-
-          // generate a few shooting stars in final scene
-          const shootingStarCount = 6;
-          for (let i = 0; i < shootingStarCount; i++) {
-            const sstar = document.createElement('div');
-            sstar.className = 'shooting-star';
-            const x = Math.random() * window.innerWidth;
-            const y = Math.random() * window.innerHeight;
-            sstar.style.left = x + 'px';
-            sstar.style.top = y + 'px';
-            const angle = Math.random() * 360;
-            sstar.style.setProperty('--rotation', `${angle}deg`);
-            sstar.style.setProperty('--offset', `600px`);
-            const dur = 1.5 + Math.random() * 2;
-            sstar.style.animationDuration = `${dur}s`;
-            const del = Math.random() * 10;
-            sstar.style.animationDelay = `${del}s`;
-            finalStarsContainer.appendChild(sstar);
-          }
-
-          // catalog title and subtitle
-          const title = document.createElement('h1');
-          title.textContent = 'Welcome to My Catalog Story';
-          finalScene.appendChild(title);
-
-          const subtitle = document.createElement('p');
-          subtitle.textContent = "click the play button to begin";
-          finalScene.appendChild(subtitle);
-
-          // play button (changed to yellow)
-          const playButton = document.createElement('button');
-          playButton.id = 'play-btn';
-          playButton.textContent = 'play';
-          finalScene.appendChild(playButton);
-
-          // create catalog cards grid
-          const cardsGrid = document.createElement('div');
-          cardsGrid.id = 'cards-grid';
-          for (let i = 0; i < 6; i++) {
-            const card = document.createElement('div');
-            card.className = 'card';
-
-            // big numbers 1 to 6 in each card
-            const numberDiv = document.createElement('div');
-            numberDiv.style.fontSize = "100px";
-            numberDiv.style.display = "flex";
-            numberDiv.style.alignItems = "center";
-            numberDiv.style.justifyContent = "center";
-            numberDiv.style.width = "100%";
-            numberDiv.style.height = "100%";
-            numberDiv.textContent = (i + 1);
-            card.appendChild(numberDiv);
-
-            cardsGrid.appendChild(card);
-          }
-          finalScene.appendChild(cardsGrid);
-
-          /********************************************
-           * Insert hidden catalog controls here
-           ********************************************/
-          const catalogControls = document.createElement('div');
-          catalogControls.id = 'catalog-controls';
-          catalogControls.innerHTML = `
-            <h2>my life chapters</h2>
-            <label for="category-select">filter by category:</label>
-            <select id="category-select">
-              <option value="All">All</option>
-              <option value="Work">Work</option>
-              <option value="Mental Health">Mental Health</option>
-              <option value="Realization">Realization</option>
-              <option value="Breakthrough">Breakthrough</option>
-              <option value="Creation">Creation</option>
-              <option value="Results">Results</option>
-            </select>
-            <button id="sort-impact-btn">sort by impact (desc)</button>
-            <label for="search-input">search (title/reflection):</label>
-            <input type="text" id="search-input" placeholder="type to search...">
-            <div id="chapter-list"></div>
-          `;
-          finalScene.appendChild(catalogControls);
-          /********************************************/
-
-          document.body.appendChild(finalScene);
-          setTimeout(() => {
-            finalScene.style.opacity = '1';
-          }, 50);
-
-          // PLAY button click: zoom into top-left card (index 0) => video1
-          playButton.addEventListener('click', () => {
-            const cards = document.querySelectorAll('#cards-grid .card');
-            const card = cards[0]; // top-left card for video1
-            if (!card) return;
-
-            const finalSceneRect = finalScene.getBoundingClientRect();
-            const cardRect = card.getBoundingClientRect();
-            const cardCenterX = cardRect.left + cardRect.width / 2 - finalSceneRect.left;
-            const cardCenterY = cardRect.top + cardRect.height / 2 - finalSceneRect.top;
-            finalScene.style.transformOrigin = `${cardCenterX}px ${cardCenterY}px`;
-            finalScene.style.transition = "transform 3s ease-in-out";
-            finalScene.style.transform = "scale(80)";
-
-            finalScene.addEventListener('transitionend', function handlerZoomIn() {
-              finalScene.removeEventListener('transitionend', handlerZoomIn);
-
-              // insert video1 (data1.mp4)
-              const video1 = document.createElement('video');
-              video1.src = "data1.mp4";
-              video1.style.position = "fixed";
-              video1.style.top = "0";
-              video1.style.left = "0";
-              video1.style.width = "100%";
-              video1.style.height = "100%";
-              video1.style.objectFit = "cover";
-              video1.style.zIndex = "10";
-              video1.autoplay = true;
-              video1.controls = false;
-              video1.playsInline = true;
-              video1.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
-              document.body.appendChild(video1);
-
-              // reflection
-              video1.addEventListener('play', () => {
-                createReflectionCaption(0);
-              });
-              video1.addEventListener('ended', () => {
-                removeReflectionCaption();
-                markVideoWatched(0);
-              });
-
-              let nextButton1Shown = false;
-              video1.addEventListener('timeupdate', () => {
-                // show next + back buttons at 60s
-                if (!nextButton1Shown && video1.currentTime >= 60) {
-                  nextButton1Shown = true;
-
-                  // next button for video1
-                  const nextButton = document.createElement('button');
-                  nextButton.id = 'next-btn';
-                  nextButton.textContent = 'next';
-                  nextButton.style.position = "fixed";
-                  nextButton.style.bottom = "20px";
-                  nextButton.style.right = "20px";
-                  nextButton.style.padding = "10px 20px";
-                  nextButton.style.fontSize = "1em";
-                  nextButton.style.cursor = "pointer";
-                  nextButton.style.borderRadius = "5px";
-                  nextButton.style.zIndex = "20";
-                  document.body.appendChild(nextButton);
-
-                  // back button for video1 (go back to home)
-                  const backButton = document.createElement('button');
-                  backButton.id = 'back-btn';
-                  backButton.textContent = 'back';
-                  backButton.style.position = "fixed";
-                  backButton.style.bottom = "20px";
-                  backButton.style.left = "20px";
-                  backButton.style.padding = "10px 20px";
-                  backButton.style.fontSize = "1em";
-                  backButton.style.cursor = "pointer";
-                  backButton.style.borderRadius = "5px";
-                  backButton.style.zIndex = "20";
-                  document.body.appendChild(backButton);
-
-                  backButton.addEventListener('click', () => {
-                    removeReflectionCaption();
-                    backButton.remove();
-                    nextButton.remove();
-                    video1.pause();
-                    video1.remove();
-                    finalScene.style.transform = "scale(1)";
-                  });
-
-                  nextButton.addEventListener('click', () => {
-                    removeReflectionCaption();
-                    backButton.remove();
-                    nextButton.remove();
-                    video1.pause();
-                    video1.remove();
-
-                    // zoom out to catalog
-                    finalScene.style.transition = "transform 3s ease-in-out";
-                    finalScene.style.transform = "scale(1)";
-
-                    finalScene.addEventListener('transitionend', function handlerZoomOut() {
-                      finalScene.removeEventListener('transitionend', handlerZoomOut);
-
-                      // then zoom into top-middle card (index 1) => video2
-                      const cardMiddle = cards[1];
-                      if (!cardMiddle) return;
-
-                      const finalSceneRect = finalScene.getBoundingClientRect();
-                      const cardRect = cardMiddle.getBoundingClientRect();
-                      const cardCenterX = cardRect.left + cardRect.width / 2 - finalSceneRect.left;
-                      const cardCenterY = cardRect.top + cardRect.height / 2 - finalSceneRect.top;
-                      finalScene.style.transformOrigin = `${cardCenterX}px ${cardCenterY}px`;
-                      finalScene.style.transition = "transform 3s ease-in-out";
-                      finalScene.style.transform = "scale(80)";
-
-                      finalScene.addEventListener('transitionend', function handlerZoomIn2() {
-                        finalScene.removeEventListener('transitionend', handlerZoomIn2);
-
-                        // insert video2 (data2.mp4)
-                        const video2 = document.createElement('video');
-                        video2.src = "data2.mp4";
-                        video2.style.position = "fixed";
-                        video2.style.top = "0";
-                        video2.style.left = "0";
-                        video2.style.width = "100%";
-                        video2.style.height = "100%";
-                        video2.style.objectFit = "cover";
-                        video2.style.zIndex = "10";
-                        video2.autoplay = true;
-                        video2.controls = false;
-                        video2.playsInline = true;
-                        video2.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
-                        document.body.appendChild(video2);
-
-                        // reflection
-                        video2.addEventListener('play', () => {
-                          createReflectionCaption(1);
-                        });
-                        video2.addEventListener('ended', () => {
-                          removeReflectionCaption();
-                          markVideoWatched(1);
-                        });
-
-                        video2.addEventListener('loadedmetadata', () => {
-                          video2.addEventListener('timeupdate', function checkTime2() {
-                            // show next/back 5s before video2 ends
-                            if (video2.duration && video2.currentTime >= (video2.duration - 5)) {
-                              video2.removeEventListener('timeupdate', checkTime2);
-
-                              const nextButton2 = document.createElement('button');
-                              nextButton2.id = 'next-btn-2';
-                              nextButton2.textContent = 'next';
-                              nextButton2.style.position = "fixed";
-                              nextButton2.style.bottom = "20px";
-                              nextButton2.style.right = "20px";
-                              nextButton2.style.padding = "10px 20px";
-                              nextButton2.style.fontSize = "1em";
-                              nextButton2.style.cursor = "pointer";
-                              nextButton2.style.borderRadius = "5px";
-                              nextButton2.style.zIndex = "20";
-                              document.body.appendChild(nextButton2);
-
-                              // back button to go back to video1
-                              const backButton2 = document.createElement('button');
-                              backButton2.id = 'back-btn-2';
-                              backButton2.textContent = 'back';
-                              backButton2.style.position = "fixed";
-                              backButton2.style.bottom = "20px";
-                              backButton2.style.left = "20px";
-                              backButton2.style.padding = "10px 20px";
-                              backButton2.style.fontSize = "1em";
-                              backButton2.style.cursor = "pointer";
-                              backButton2.style.borderRadius = "5px";
-                              backButton2.style.zIndex = "20";
-                              document.body.appendChild(backButton2);
-
-                              backButton2.addEventListener('click', () => {
-                                removeReflectionCaption();
-                                backButton2.remove();
-                                nextButton2.remove();
-                                video2.pause();
-                                video2.remove();
-
-                                // zoom out from video2
-                                finalScene.style.transition = "transform 3s ease-in-out";
-                                finalScene.style.transform = "scale(1)";
-
-                                finalScene.addEventListener('transitionend', function goBackToVideo1() {
-                                  finalScene.removeEventListener('transitionend', goBackToVideo1);
-
-                                  // now re-zoom into card 0 (video1)
-                                  const cardVid1 = cards[0];
-                                  if (!cardVid1) return;
-
-                                  const cardRect1 = cardVid1.getBoundingClientRect();
-                                  const cardCenterX1 = cardRect1.left + cardRect1.width / 2 - finalSceneRect.left;
-                                  const cardCenterY1 = cardRect1.top + cardRect1.height / 2 - finalSceneRect.top;
-                                  finalScene.style.transformOrigin = `${cardCenterX1}px ${cardCenterY1}px`;
-                                  finalScene.style.transition = "transform 3s ease-in-out";
-                                  finalScene.style.transform = "scale(80)";
-
-                                  finalScene.addEventListener('transitionend', function reEnterVideo1() {
-                                    finalScene.removeEventListener('transitionend', reEnterVideo1);
-
-                                    // re-insert video1 fresh
-                                    const video1again = document.createElement('video');
-                                    video1again.src = "data1.mp4";
-                                    video1again.style.position = "fixed";
-                                    video1again.style.top = "0";
-                                    video1again.style.left = "0";
-                                    video1again.style.width = "100%";
-                                    video1again.style.height = "100%";
-                                    video1again.style.objectFit = "cover";
-                                    video1again.style.zIndex = "10";
-                                    video1again.autoplay = true;
-                                    video1again.controls = false;
-                                    video1again.playsInline = true;
-                                    video1again.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
-                                    document.body.appendChild(video1again);
-
-                                    // reflection
-                                    video1again.addEventListener('play', () => {
-                                      createReflectionCaption(0);
-                                    });
-                                    video1again.addEventListener('ended', () => {
-                                      removeReflectionCaption();
-                                      markVideoWatched(0);
-                                    });
-
-                                    let nextButton1bShown = false;
-                                    video1again.addEventListener('timeupdate', () => {
-                                      if (!nextButton1bShown && video1again.currentTime >= 60) {
-                                        nextButton1bShown = true;
-                                        const nextButtonRe1 = document.createElement('button');
-                                        nextButtonRe1.id = 'next-btn-re1';
-                                        nextButtonRe1.textContent = 'next';
-                                        nextButtonRe1.style.position = "fixed";
-                                        nextButtonRe1.style.bottom = "20px";
-                                        nextButtonRe1.style.right = "20px";
-                                        nextButtonRe1.style.padding = "10px 20px";
-                                        nextButtonRe1.style.fontSize = "1em";
-                                        nextButtonRe1.style.cursor = "pointer";
-                                        nextButtonRe1.style.borderRadius = "5px";
-                                        nextButtonRe1.style.zIndex = "20";
-                                        document.body.appendChild(nextButtonRe1);
-
-                                        const backButtonRe1 = document.createElement('button');
-                                        backButtonRe1.id = 'back-btn-re1';
-                                        backButtonRe1.textContent = 'back';
-                                        backButtonRe1.style.position = "fixed";
-                                        backButtonRe1.style.bottom = "20px";
-                                        backButtonRe1.style.left = "20px";
-                                        backButtonRe1.style.padding = "10px 20px";
-                                        backButtonRe1.style.fontSize = "1em";
-                                        backButtonRe1.style.cursor = "pointer";
-                                        backButtonRe1.style.borderRadius = "5px";
-                                        backButtonRe1.style.zIndex = "20";
-                                        document.body.appendChild(backButtonRe1);
-
-                                        backButtonRe1.addEventListener('click', () => {
-                                          removeReflectionCaption();
-                                          backButtonRe1.remove();
-                                          nextButtonRe1.remove();
-                                          video1again.pause();
-                                          video1again.remove();
-                                          finalScene.style.transform = "scale(1)";
-                                        });
-
-                                        nextButtonRe1.addEventListener('click', () => {
-                                          removeReflectionCaption();
-                                          backButtonRe1.remove();
-                                          nextButtonRe1.remove();
-                                          video1again.pause();
-                                          video1again.remove();
-
-                                          finalScene.style.transition = "transform 3s ease-in-out";
-                                          finalScene.style.transform = "scale(1)";
-                                          finalScene.addEventListener('transitionend', function ret1ZoomOut() {
-                                            finalScene.removeEventListener('transitionend', ret1ZoomOut);
-                                            // go to video2
-                                            const card2 = cards[1];
-                                            if (!card2) return;
-                                            const cardRect2 = card2.getBoundingClientRect();
-                                            const cx2 = cardRect2.left + cardRect2.width / 2 - finalSceneRect.left;
-                                            const cy2 = cardRect2.top + cardRect2.height / 2 - finalSceneRect.top;
-                                            finalScene.style.transformOrigin = `${cx2}px ${cy2}px`;
-                                            finalScene.style.transform = "scale(80)";
-                                            finalScene.addEventListener('transitionend', function reEnterVideo2() {
-                                              finalScene.removeEventListener('transitionend', reEnterVideo2);
-                                              const video2b = document.createElement('video');
-                                              video2b.src = "data2.mp4";
-                                              video2b.style.position = "fixed";
-                                              video2b.style.top = "0";
-                                              video2b.style.left = "0";
-                                              video2b.style.width = "100%";
-                                              video2b.style.height = "100%";
-                                              video2b.style.objectFit = "cover";
-                                              video2b.style.zIndex = "10";
-                                              video2b.autoplay = true;
-                                              video2b.controls = false;
-                                              video2b.playsInline = true;
-                                              video2b.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
-                                              document.body.appendChild(video2b);
-
-                                              video2b.addEventListener('play', () => {
-                                                createReflectionCaption(1);
-                                              });
-                                              video2b.addEventListener('ended', () => {
-                                                removeReflectionCaption();
-                                                markVideoWatched(1);
-                                              });
-                                              // same logic as original video2...
-                                            });
-                                          });
-                                        });
-                                      }
-                                    });
-                                  });
-                                });
-                              });
-
-                              nextButton2.addEventListener('click', () => {
-                                removeReflectionCaption();
-                                backButton2.remove();
-                                nextButton2.remove();
-                                video2.pause();
-                                video2.remove();
-
-                                // zoom out from video2 to catalog
-                                finalScene.style.transition = "transform 3s ease-in-out";
-                                finalScene.style.transform = "scale(1)";
-                                finalScene.addEventListener('transitionend', function handlerZoomOut2() {
-                                  finalScene.removeEventListener('transitionend', handlerZoomOut2);
-
-                                  // zoom into top-right card (index 2) => video3
-                                  const cardForVideo3 = cards[2];
-                                  if (!cardForVideo3) return;
-                                  const finalSceneRect2 = finalScene.getBoundingClientRect();
-                                  const cardRect3 = cardForVideo3.getBoundingClientRect();
-                                  const cardCenterX3 = cardRect3.left + cardRect3.width / 2 - finalSceneRect2.left;
-                                  const cardCenterY3 = cardRect3.top + cardRect3.height / 2 - finalSceneRect2.top;
-                                  finalScene.style.transformOrigin = `${cardCenterX3}px ${cardCenterY3}px`;
-                                  finalScene.style.transition = "transform 3s ease-in-out";
-                                  finalScene.style.transform = "scale(80)";
-
-                                  finalScene.addEventListener('transitionend', function handlerZoomIn3() {
-                                    finalScene.removeEventListener('transitionend', handlerZoomIn3);
-
-                                    // insert video3 (data3.mp4)
-                                    const video3 = document.createElement('video');
-                                    video3.src = "data3.mp4";
-                                    video3.style.position = "fixed";
-                                    video3.style.top = "0";
-                                    video3.style.left = "0";
-                                    video3.style.width = "100%";
-                                    video3.style.height = "100%";
-                                    video3.style.objectFit = "cover";
-                                    video3.style.zIndex = "10";
-                                    video3.autoplay = true;
-                                    video3.controls = false;
-                                    video3.playsInline = true;
-                                    video3.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
-                                    document.body.appendChild(video3);
-
-                                    video3.addEventListener('play', () => {
-                                      createReflectionCaption(2);
-                                    });
-                                    video3.addEventListener('ended', () => {
-                                      removeReflectionCaption();
-                                      markVideoWatched(2);
-                                    });
-
-                                    video3.addEventListener('loadedmetadata', () => {
-                                      video3.addEventListener('timeupdate', function checkTime3() {
-                                        // user wants next/back at ~98s
-                                        if (video3.currentTime >= 98) {
-                                          video3.removeEventListener('timeupdate', checkTime3);
-                                          const nextButton3 = document.createElement('button');
-                                          nextButton3.id = 'next-btn-3';
-                                          nextButton3.textContent = 'next';
-                                          nextButton3.style.position = "fixed";
-                                          nextButton3.style.bottom = "20px";
-                                          nextButton3.style.right = "20px";
-                                          nextButton3.style.padding = "10px 20px";
-                                          nextButton3.style.fontSize = "1em";
-                                          nextButton3.style.cursor = "pointer";
-                                          nextButton3.style.borderRadius = "5px";
-                                          nextButton3.style.zIndex = "20";
-                                          document.body.appendChild(nextButton3);
-
-                                          // back button to go back to video2
-                                          const backButton3 = document.createElement('button');
-                                          backButton3.id = 'back-btn-3';
-                                          backButton3.textContent = 'back';
-                                          backButton3.style.position = "fixed";
-                                          backButton3.style.bottom = "20px";
-                                          backButton3.style.left = "20px";
-                                          backButton3.style.padding = "10px 20px";
-                                          backButton3.style.fontSize = "1em";
-                                          backButton3.style.cursor = "pointer";
-                                          backButton3.style.borderRadius = "5px";
-                                          backButton3.style.zIndex = "20";
-                                          document.body.appendChild(backButton3);
-
-                                          backButton3.addEventListener('click', () => {
-                                            removeReflectionCaption();
-                                            backButton3.remove();
-                                            nextButton3.remove();
-                                            video3.pause();
-                                            video3.remove();
-
-                                            finalScene.style.transition = "transform 3s ease-in-out";
-                                            finalScene.style.transform = "scale(1)";
-                                            finalScene.addEventListener('transitionend', function backToVideo2() {
-                                              finalScene.removeEventListener('transitionend', backToVideo2);
-                                              // go to card index 1 => video2
-                                              const card2again = cards[1];
-                                              if (!card2again) return;
-                                              const fsRect = finalScene.getBoundingClientRect();
-                                              const c2Rect = card2again.getBoundingClientRect();
-                                              const ccx2 = c2Rect.left + c2Rect.width/2 - fsRect.left;
-                                              const ccy2 = c2Rect.top + c2Rect.height/2 - fsRect.top;
-                                              finalScene.style.transformOrigin = `${ccx2}px ${ccy2}px`;
-                                              finalScene.style.transition = "transform 3s ease-in-out";
-                                              finalScene.style.transform = "scale(80)";
-                                              finalScene.addEventListener('transitionend', function reZoomVid2() {
-                                                finalScene.removeEventListener('transitionend', reZoomVid2);
-                                                const video2re = document.createElement('video');
-                                                video2re.src = "data2.mp4";
-                                                video2re.style.position = "fixed";
-                                                video2re.style.top = "0";
-                                                video2re.style.left = "0";
-                                                video2re.style.width = "100%";
-                                                video2re.style.height = "100%";
-                                                video2re.style.objectFit = "cover";
-                                                video2re.style.zIndex = "10";
-                                                video2re.autoplay = true;
-                                                video2re.controls = false;
-                                                video2re.playsInline = true;
-                                                video2re.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
-                                                document.body.appendChild(video2re);
-
-                                                video2re.addEventListener('play', () => {
-                                                  createReflectionCaption(1);
-                                                });
-                                                video2re.addEventListener('ended', () => {
-                                                  removeReflectionCaption();
-                                                  markVideoWatched(1);
-                                                });
-                                                // same logic for next/back
-                                              });
-                                            });
-                                          });
-
-                                          nextButton3.addEventListener('click', () => {
-                                            removeReflectionCaption();
-                                            backButton3.remove();
-                                            nextButton3.remove();
-                                            video3.pause();
-                                            video3.remove();
-
-                                            // zoom out from video3 => bottom-left card (index 3) => video4
-                                            finalScene.style.transition = "transform 3s ease-in-out";
-                                            finalScene.style.transform = "scale(1)";
-                                            finalScene.addEventListener('transitionend', function handlerZoomOut3() {
-                                              finalScene.removeEventListener('transitionend', handlerZoomOut3);
-
-                                              const cardForVideo4 = cards[3];
-                                              if (!cardForVideo4) return;
-                                              const finalSceneRect3 = finalScene.getBoundingClientRect();
-                                              const cardRect4 = cardForVideo4.getBoundingClientRect();
-                                              const cardCenterX4 = cardRect4.left + cardRect4.width / 2 - finalSceneRect3.left;
-                                              const cardCenterY4 = cardRect4.top + cardRect4.height / 2 - finalSceneRect3.top;
-                                              finalScene.style.transformOrigin = `${cardCenterX4}px ${cardCenterY4}px`;
-                                              finalScene.style.transition = "transform 3s ease-in-out";
-                                              finalScene.style.transform = "scale(80)";
-
-                                              finalScene.addEventListener('transitionend', function handlerZoomIn4() {
-                                                finalScene.removeEventListener('transitionend', handlerZoomIn4);
-
-                                                // insert video4 (data4.mp4) normal volume, but advanced audio code
-                                                const video4 = document.createElement('video');
-                                                video4.src = "data4.mp4";
-                                                video4.style.position = "fixed";
-                                                video4.style.top = "0";
-                                                video4.style.left = "0";
-                                                video4.style.width = "100%";
-                                                video4.style.height = "100%";
-                                                video4.style.objectFit = "cover";
-                                                video4.style.zIndex = "10";
-                                                video4.autoplay = true;
-                                                video4.controls = false;
-                                                video4.playsInline = true;
-                                                video4.volume = 1.0;
-                                                video4.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
-                                                document.body.appendChild(video4);
-
-                                                video4.addEventListener('play', () => {
-                                                  createReflectionCaption(3);
-
-                                                  // early show next/back buttons at 15s
-                                                  const earlyBtnCheck = setInterval(() => {
-                                                    if (video4.currentTime >= 15) {
-                                                      if (!document.getElementById('next-btn-4') && !document.getElementById('back-btn-4')) {
-                                                        const nextButton4 = document.createElement('button');
-                                                        nextButton4.id = 'next-btn-4';
-                                                        nextButton4.textContent = 'next';
-                                                        nextButton4.style.position = "fixed";
-                                                        nextButton4.style.bottom = "20px";
-                                                        nextButton4.style.right = "20px";
-                                                        nextButton4.style.padding = "10px 20px";
-                                                        nextButton4.style.fontSize = "1em";
-                                                        nextButton4.style.cursor = "pointer";
-                                                        nextButton4.style.borderRadius = "5px";
-                                                        nextButton4.style.zIndex = "20";
-                                                        document.body.appendChild(nextButton4);
-
-                                                        const backButton4 = document.createElement('button');
-                                                        backButton4.id = 'back-btn-4';
-                                                        backButton4.textContent = 'back';
-                                                        backButton4.style.position = "fixed";
-                                                        backButton4.style.bottom = "20px";
-                                                        backButton4.style.left = "20px";
-                                                        backButton4.style.padding = "10px 20px";
-                                                        backButton4.style.fontSize = "1em";
-                                                        backButton4.style.cursor = "pointer";
-                                                        backButton4.style.borderRadius = "5px";
-                                                        backButton4.style.zIndex = "20";
-                                                        document.body.appendChild(backButton4);
-
-                                                        backButton4.addEventListener('click', () => {
-                                                          removeReflectionCaption();
-                                                          backButton4.remove();
-                                                          nextButton4.remove();
-                                                          video4.pause();
-                                                          video4.remove();
-                                                          const finalScene = document.getElementById('final-scene');
-                                                          finalScene.style.transition = "transform 3s ease-in-out";
-                                                          finalScene.style.transform = "scale(1)";
-                                                        });
-
-                                                        nextButton4.addEventListener('click', () => {
-                                                          // FIX: go to video5 (the chain you originally had)
-                                                          removeReflectionCaption();
-                                                          backButton4.remove();
-                                                          nextButton4.remove();
-                                                          video4.pause();
-                                                          video4.remove();
-
-                                                          const finalScene = document.getElementById('final-scene');
-                                                          finalScene.style.transition = "transform 3s ease-in-out";
-                                                          finalScene.style.transform = "scale(1)";
-
-                                                          finalScene.addEventListener('transitionend', function handlerZoomOut4() {
-                                                            finalScene.removeEventListener('transitionend', handlerZoomOut4);
-
-                                                            // then zoom into bottom-middle card (index 4) => video5
-                                                            const cards = document.querySelectorAll('#cards-grid .card');
-                                                            const cardForVideo5 = cards[4];
-                                                            if (!cardForVideo5) return;
-                                                            const finalSceneRect4 = finalScene.getBoundingClientRect();
-                                                            const cardRect5 = cardForVideo5.getBoundingClientRect();
-                                                            const cardCenterX5 = cardRect5.left + cardRect5.width / 2 - finalSceneRect4.left;
-                                                            const cardCenterY5 = cardRect5.top + cardRect5.height / 2 - finalSceneRect4.top;
-                                                            finalScene.style.transformOrigin = `${cardCenterX5}px ${cardCenterY5}px`;
-                                                            finalScene.style.transition = "transform 3s ease-in-out";
-                                                            finalScene.style.transform = "scale(80)";
-
-                                                            finalScene.addEventListener('transitionend', function handlerZoomIn5() {
-                                                              finalScene.removeEventListener('transitionend', handlerZoomIn5);
-
-                                                              // insert video5 (data5.mp4)
-                                                              const video5 = document.createElement('video');
-                                                              video5.src = "data5.mp4";
-                                                              video5.style.position = "fixed";
-                                                              video5.style.top = "0";
-                                                              video5.style.left = "0";
-                                                              video5.style.width = "100%";
-                                                              video5.style.height = "100%";
-                                                              video5.style.objectFit = "cover";
-                                                              video5.style.zIndex = "10";
-                                                              video5.autoplay = true;
-                                                              video5.controls = false;
-                                                              video5.playsInline = true;
-                                                              video5.volume = 1.0;
-                                                              video5.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
-                                                              document.body.appendChild(video5);
-
-                                                              video5.addEventListener('play', () => {
-                                                                createReflectionCaption(4);
-                                                              });
-                                                              video5.addEventListener('ended', () => {
-                                                                removeReflectionCaption();
-                                                                markVideoWatched(4);
-                                                              });
-                                                            });
-                                                          });
-                                                        });
-
-                                                        clearInterval(earlyBtnCheck);
-                                                      }
-                                                    }
-                                                  }, 1000);
-                                                });
-
-                                                video4.addEventListener('ended', () => {
-                                                  removeReflectionCaption();
-                                                  markVideoWatched(3);
-                                                });
-
-
-                                                video4.addEventListener('loadedmetadata', () => {
-                                                  const audioCtx4 = new (window.AudioContext || window.webkitAudioContext)();
-                                                  const source4 = audioCtx4.createMediaElementSource(video4);
-                                                  const gainNode4 = audioCtx4.createGain();
-                                                  gainNode4.gain.value = 1.0; 
-                                                  source4.connect(gainNode4).connect(audioCtx4.destination);
-
-                                                  // user wants next/back at 0:40 => keep old code, but fix it too
-                                                  video4.addEventListener('timeupdate', function checkTime4() {
-                                                    if (video4.currentTime >= 40) {
-                                                      video4.removeEventListener('timeupdate', checkTime4);
-                                                      const nextButton4 = document.createElement('button');
-                                                      nextButton4.id = 'next-btn-4';
-                                                      nextButton4.textContent = 'next';
-                                                      nextButton4.style.position = "fixed";
-                                                      nextButton4.style.bottom = "20px";
-                                                      nextButton4.style.right = "20px";
-                                                      nextButton4.style.padding = "10px 20px";
-                                                      nextButton4.style.fontSize = "1em";
-                                                      nextButton4.style.cursor = "pointer";
-                                                      nextButton4.style.borderRadius = "5px";
-                                                      nextButton4.style.zIndex = "20";
-                                                      document.body.appendChild(nextButton4);
-
-                                                      // back button to go back to video3
-                                                      const backButton4 = document.createElement('button');
-                                                      backButton4.id = 'back-btn-4';
-                                                      backButton4.textContent = 'back';
-                                                      backButton4.style.position = "fixed";
-                                                      backButton4.style.bottom = "20px";
-                                                      backButton4.style.left = "20px";
-                                                      backButton4.style.padding = "10px 20px";
-                                                      backButton4.style.fontSize = "1em";
-                                                      backButton4.style.cursor = "pointer";
-                                                      backButton4.style.borderRadius = "5px";
-                                                      backButton4.style.zIndex = "20";
-                                                      document.body.appendChild(backButton4);
-
-                                                      backButton4.addEventListener('click', () => {
-                                                        removeReflectionCaption();
-                                                        backButton4.remove();
-                                                        nextButton4.remove();
-                                                        video4.pause();
-                                                        video4.remove();
-                                                        finalScene.style.transition = "transform 3s ease-in-out";
-                                                        finalScene.style.transform = "scale(1)";
-                                                        finalScene.addEventListener('transitionend', function backToVideo3() {
-                                                          finalScene.removeEventListener('transitionend', backToVideo3);
-                                                          // re-zoom card index 2 => video3
-                                                          const c3 = cards[2];
-                                                          if (!c3) return;
-                                                          const fsRect3 = finalScene.getBoundingClientRect();
-                                                          const c3Rect = c3.getBoundingClientRect();
-                                                          const cx3 = c3Rect.left + c3Rect.width/2 - fsRect3.left;
-                                                          const cy3 = c3Rect.top + c3Rect.height/2 - fsRect3.top;
-                                                          finalScene.style.transformOrigin = `${cx3}px ${cy3}px`;
-                                                          finalScene.style.transform = "scale(80)";
-                                                          finalScene.addEventListener('transitionend', function reZoomVid3() {
-                                                            finalScene.removeEventListener('transitionend', reZoomVid3);
-                                                            const video3re = document.createElement('video');
-                                                            video3re.src = "data3.mp4";
-                                                            video3re.style.position = "fixed";
-                                                            video3re.style.top = "0";
-                                                            video3re.style.left = "0";
-                                                            video3re.style.width = "100%";
-                                                            video3re.style.height = "100%";
-                                                            video3re.style.objectFit = "cover";
-                                                            video3re.style.zIndex = "10";
-                                                            video3re.autoplay = true;
-                                                            video3re.controls = false;
-                                                            video3re.playsInline = true;
-                                                            video3re.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
-                                                            document.body.appendChild(video3re);
-                                                            // reflection
-                                                            video3re.addEventListener('play', () => {
-                                                              createReflectionCaption(2);
-                                                            });
-                                                            video3re.addEventListener('ended', () => {
-                                                              removeReflectionCaption();
-                                                              markVideoWatched(2);
-                                                            });
-                                                          });
-                                                        });
-                                                      });
-
-                                                      nextButton4.addEventListener('click', () => {
-                                                        // FIX: go to video5 (the chain you originally had)
-                                                        removeReflectionCaption();
-                                                        backButton4.remove();
-                                                        nextButton4.remove();
-                                                        video4.pause();
-                                                        video4.remove();
-                                                        finalScene.style.transition = "transform 3s ease-in-out";
-                                                        finalScene.style.transform = "scale(1)";
-                                                        finalScene.addEventListener('transitionend', function handlerZoomOut4() {
-                                                          finalScene.removeEventListener('transitionend', handlerZoomOut4);
-
-                                                          // then zoom into bottom-middle card (index 4) => video5
-                                                          const cards = document.querySelectorAll('#cards-grid .card');
-                                                          const cardForVideo5 = cards[4];
-                                                          if (!cardForVideo5) return;
-                                                          const finalSceneRect4 = finalScene.getBoundingClientRect();
-                                                          const cardRect5 = cardForVideo5.getBoundingClientRect();
-                                                          const cardCenterX5 = cardRect5.left + cardRect5.width / 2 - finalSceneRect4.left;
-                                                          const cardCenterY5 = cardRect5.top + cardRect5.height / 2 - finalSceneRect4.top;
-                                                          finalScene.style.transformOrigin = `${cardCenterX5}px ${cardCenterY5}px`;
-                                                          finalScene.style.transition = "transform 3s ease-in-out";
-                                                          finalScene.style.transform = "scale(80)";
-
-                                                          finalScene.addEventListener('transitionend', function handlerZoomIn5() {
-                                                            finalScene.removeEventListener('transitionend', handlerZoomIn5);
-
-                                                            // insert video5 (data5.mp4)
-                                                            const video5 = document.createElement('video');
-                                                            video5.src = "data5.mp4";
-                                                            video5.style.position = "fixed";
-                                                            video5.style.top = "0";
-                                                            video5.style.left = "0";
-                                                            video5.style.width = "100%";
-                                                            video5.style.height = "100%";
-                                                            video5.style.objectFit = "cover";
-                                                            video5.style.zIndex = "10";
-                                                            video5.autoplay = true;
-                                                            video5.controls = false;
-                                                            video5.playsInline = true;
-                                                            video5.volume = 1.0;
-                                                            video5.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
-                                                            document.body.appendChild(video5);
-
-                                                            video5.addEventListener('play', () => {
-                                                              createReflectionCaption(4);
-                                                            });
-                                                            video5.addEventListener('ended', () => {
-                                                              removeReflectionCaption();
-                                                              markVideoWatched(4);
-                                                            });
-                                                          });
-                                                        });
-                                                      });
-                                                    }
-                                                  });
-                                                });
-                                              });
-                                            });
-                                          });
-                                        }
-                                      });
-                                    });
-                                  });
-                                });
-                              });
-                            }
-                          });
-                        });
-                      });
-                    });
-                  });
-                }
-              });
-            });
-          });
-
-          setTimeout(() => {
-            finalScene.style.opacity = '1';
-          }, 50);
-
-        }, 2000); // wait 2 seconds after scene fade-out
-      }
-
-      function scheduleFadeOut() {
-        const fadeTimeOffset = 6;
-        const remainingTime = backgroundMusic.duration - fadeTimeOffset - backgroundMusic.currentTime;
-        if (remainingTime > 0) {
-          setTimeout(fadeOutScene, remainingTime * 1000);
-        } else {
-          fadeOutScene();
-        }
-      }
-
-      if (backgroundMusic.readyState > 0) {
-        scheduleFadeOut();
-      } else {
-        backgroundMusic.addEventListener('loadedmetadata', scheduleFadeOut);
-      }
-    });
-  </script>
-
-  <!-- ADDED THIS: OVERRIDE CSS TO MAKE ZOOM SMOOTHER, SLOWER -->
-  <style>
-    /* let's make the final-scene transitions slower and smoother */
-    #final-scene {
-      transition: opacity 2s ease-in-out, transform 5s ease-in-out !important;
-    }
-  </style>
-
-  <!-- ADDED THIS: CREATE NEXT/BACK FOR VIDEO4 AT 0:15 -->
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // we won't remove the old code that triggers at 0:40.
-    // we just add a quick check at 0:15 to create the buttons earlier.
-    let video4EarlyInterval = setInterval(() => {
-      const video4 = document.querySelector('video[src="data4.mp4"]');
-      if (video4) {
-        // once video4 is playing and we pass 15s, spawn next/back if not already made
-        if (!video4.paused && video4.currentTime >= 15) {
-          // only create them if they don't exist
-          if (!document.getElementById('next-btn-4') && !document.getElementById('back-btn-4')) {
-            // replicate the old code from 0:40, but fix it so it leads to video5
-            const nextButton4 = document.createElement('button');
-            nextButton4.id = 'next-btn-4';
-            nextButton4.textContent = 'next';
-            nextButton4.style.position = "fixed";
-            nextButton4.style.bottom = "20px";
-            nextButton4.style.right = "20px";
-            nextButton4.style.padding = "10px 20px";
-            nextButton4.style.fontSize = "1em";
-            nextButton4.style.cursor = "pointer";
-            nextButton4.style.borderRadius = "5px";
-            nextButton4.style.zIndex = "20";
-            document.body.appendChild(nextButton4);
-
-            const backButton4 = document.createElement('button');
-            backButton4.id = 'back-btn-4';
-            backButton4.textContent = 'back';
-            backButton4.style.position = "fixed";
-            backButton4.style.bottom = "20px";
-            backButton4.style.left = "20px";
-            backButton4.style.padding = "10px 20px";
-            backButton4.style.fontSize = "1em";
-            backButton4.style.cursor = "pointer";
-            backButton4.style.borderRadius = "5px";
-            backButton4.style.zIndex = "20";
-            document.body.appendChild(backButton4);
-
-            backButton4.addEventListener('click', () => {
-              removeReflectionCaption();
-              backButton4.remove();
-              nextButton4.remove();
-              video4.pause();
-              video4.remove();
-              const finalScene = document.getElementById('final-scene');
-              finalScene.style.transition = "transform 3s ease-in-out";
-              finalScene.style.transform = "scale(1)";
-              // rest of logic same as original
-            });
-
-            nextButton4.addEventListener('click', () => {
-              // FIX: go to video5
-              removeReflectionCaption();
-              backButton4.remove();
-              nextButton4.remove();
-              video4.pause();
-              video4.remove();
-
-              const finalScene = document.getElementById('final-scene');
-              finalScene.style.transition = "transform 3s ease-in-out";
-              finalScene.style.transform = "scale(1)";
-              finalScene.addEventListener('transitionend', function handlerZoomOut4() {
-                finalScene.removeEventListener('transitionend', handlerZoomOut4);
-
-                // then zoom into bottom-middle card (index 4) => video5
-                const cards = document.querySelectorAll('#cards-grid .card');
-                const cardForVideo5 = cards[4];
-                if (!cardForVideo5) return;
-                const finalSceneRect4 = finalScene.getBoundingClientRect();
-                const cardRect5 = cardForVideo5.getBoundingClientRect();
-                const cardCenterX5 = cardRect5.left + cardRect5.width / 2 - finalSceneRect4.left;
-                const cardCenterY5 = cardRect5.top + cardRect5.height / 2 - finalSceneRect4.top;
-                finalScene.style.transformOrigin = `${cardCenterX5}px ${cardCenterY5}px`;
-                finalScene.style.transition = "transform 3s ease-in-out";
-                finalScene.style.transform = "scale(80)";
-
-                finalScene.addEventListener('transitionend', function handlerZoomIn5() {
-                  finalScene.removeEventListener('transitionend', handlerZoomIn5);
-
-                  // insert video5
-                  const video5 = document.createElement('video');
-                  video5.src = "data5.mp4";
-                  video5.style.position = "fixed";
-                  video5.style.top = "0";
-                  video5.style.left = "0";
-                  video5.style.width = "100%";
-                  video5.style.height = "100%";
-                  video5.style.objectFit = "cover";
-                  video5.style.zIndex = "10";
-                  video5.autoplay = true;
-                  video5.controls = false;
-                  video5.playsInline = true;
-                  video5.volume = 1.0;
-                  video5.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
-                  document.body.appendChild(video5);
-
-                  video5.addEventListener('play', () => {
-                    createReflectionCaption(4);
-                  });
-                  video5.addEventListener('ended', () => {
-                    removeReflectionCaption();
-                    markVideoWatched(4);
-                  });
-                });
-              });
-            });
-          }
-          // after we've tried once, no need to keep checking
-          clearInterval(video4EarlyInterval);
-        }
-      }
-      // if video4 ended or doesn't exist, stop checking
-      if (!video4 || (video4.ended && !video4.loop)) {
-        clearInterval(video4EarlyInterval);
-      }
-    }, 1000);
-  });
-  </script>
-
-  <!-- ADDED THIS: ADD SHUFFLE + SHOW CONTROLS ONCE USER CLICKS HOME AFTER VIDEO6 -->
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // define a shuffle function for lifeChapters
-    function shuffleChapters() {
-      for (let i = lifeChapters.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [lifeChapters[i], lifeChapters[j]] = [lifeChapters[j], lifeChapters[i]];
-      }
-    }
-
-    // add a shuffle button inside #catalog-controls once it exists
-    const observer = new MutationObserver(() => {
-      const catalogControls = document.getElementById('catalog-controls');
-      if (catalogControls && !document.getElementById('shuffle-btn')) {
-        // create shuffle button
-        const shuffleBtn = document.createElement('button');
-        shuffleBtn.id = 'shuffle-btn';
-        shuffleBtn.textContent = 'shuffle chapters';
-        shuffleBtn.style.marginLeft = '10px';
-        shuffleBtn.style.padding = '10px 20px';
-        shuffleBtn.style.fontSize = '1em';
-        shuffleBtn.style.cursor = 'pointer';
-        shuffleBtn.style.borderRadius = '5px';
-        shuffleBtn.style.zIndex = '20';
-
-        shuffleBtn.addEventListener('click', () => {
-          shuffleChapters();
-          renderChapters();
-        });
-
-        catalogControls.appendChild(shuffleBtn);
-      }
-
-      // also watch for the home-btn-6
-      const homeBtn = document.getElementById('home-btn-6');
-      if (homeBtn) {
-        homeBtn.addEventListener('click', () => {
-          // once user hits home after finishing video6
-          // if all 6 watched, forcibly show #catalog-controls
-          let watched = JSON.parse(localStorage.getItem('watchedChapters')) || {};
-          let count = 0;
-          for (let key in watched) {
-            if (watched[key]) count++;
-          }
-          if (count === 6) {
-            const catControls = document.getElementById('catalog-controls');
-            if (catControls) catControls.style.display = 'block';
-          }
-        });
-      }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-  });
+    };
+
+    window.onresize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
   </script>
 </body>
 </html>
-
-
