@@ -148,30 +148,24 @@
       height: 80px;
     }
 
-    /* the final scene is positioned absolute so we can fade it in after the tunnel */
+    /* final scene is now position: relative, at least 100vh,
+       so it won't get cut off at the top */
     #final-scene {
-      position: absolute;
-      top: 0;
-      left: 0;
+      position: relative;
+      min-height: 100vh;
       width: 100%;
-      height: 100%;
       background: black;
       color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      opacity: 0;
-      transition: opacity 2s ease-in-out, transform 3s ease-in-out;
-      z-index: 5;
+      opacity: 0; /* fade in from 0 to 1 */
+      transition: opacity 2s ease-in-out, transform 5s ease-in-out !important;
       transform: scale(1);
+      z-index: 5;
       will-change: transform;
       backface-visibility: hidden;
-      font-family: 'Montserrat', sans-serif;
-    }
-    #final-scene {
-      /* override transition for the scale effect */
-      transition: opacity 2s ease-in-out, transform 5s ease-in-out !important;
     }
 
     /* starfield for the final scene’s background */
@@ -283,10 +277,9 @@
       z-index: 9999;
     }
 
-    /* modern catalog controls */
+    /* modern catalog controls (hidden by default) */
     #catalog-controls {
-      /* show it by default; no gating by watchers */
-      display: block;
+      display: none; /* hide until user clicks "catalog" at the end of data6 */
       background: rgba(255,255,255,0.06);
       padding: 20px;
       margin: 30px auto;
@@ -405,7 +398,6 @@
   <script>
     /***********************************************************
      * 1) LIFE CHAPTERS DATA
-     *    (same as your original, used for the videos & catalog)
      ***********************************************************/
     const lifeChapters = [
       {
@@ -453,16 +445,12 @@
     ];
 
     /***********************************************************
-     * 2) WATCHERS LOGIC (kept, but no longer gating the catalog)
-     *    we won't hide the catalog controls if not all watched.
-     *    but we’ll keep the localStorage watchers in case needed.
+     * 2) MARKING VIDEO WATCHED
      ***********************************************************/
     function markVideoWatched(index) {
       let watched = JSON.parse(localStorage.getItem('watchedChapters')) || {};
       watched[index] = true;
       localStorage.setItem('watchedChapters', JSON.stringify(watched));
-      // we used to call checkAllVideosWatched() here, but we no longer
-      // gate the catalog with it, so we won't do that.
     }
 
     /***********************************************************
@@ -481,16 +469,12 @@
     }
 
     /***********************************************************
-     * 4) RENDERING THE CHAPTER CARDS
-     *    now with "update results" approach for filter/search/sort
+     * 4) FILTER/SORT/SEARCH + RENDER
      ***********************************************************/
-
-    // track user preference for sorting, search, filter
     let selectedCategory = 'All';
     let searchTerm = '';
     let sortByImpactDesc = false;
 
-    // re-render function that applies the current filter, search, and sort
     function updateResults() {
       let displayed = lifeChapters.slice();
 
@@ -498,23 +482,21 @@
       if (selectedCategory !== 'All') {
         displayed = displayed.filter(chap => chap.category === selectedCategory);
       }
-
       // filter by search
       if (searchTerm.trim() !== '') {
-        let lower = searchTerm.toLowerCase();
+        const lower = searchTerm.toLowerCase();
         displayed = displayed.filter(chap => {
-          let t = chap.title.toLowerCase();
-          let r = chap.reflection.toLowerCase();
+          const t = chap.title.toLowerCase();
+          const r = chap.reflection.toLowerCase();
           return t.includes(lower) || r.includes(lower);
         });
       }
-
-      // optional sort by impact desc
+      // sort if toggled
       if (sortByImpactDesc) {
         displayed.sort((a, b) => b.impact - a.impact);
       }
 
-      // now show them in #chapter-list
+      // render them
       const listDiv = document.getElementById('chapter-list');
       if (!listDiv) return;
       listDiv.innerHTML = '';
@@ -548,7 +530,7 @@
     }
 
     /***********************************************************
-     * 5) CRUD functions
+     * 5) CRUD
      ***********************************************************/
     function addChapter(newChap) {
       lifeChapters.push(newChap);
@@ -577,7 +559,6 @@
 
     /***********************************************************
      * 6) FULL VIDEO TRANSITION CHAIN
-     *    (unchanged logic; we only removed gating from watchers)
      ***********************************************************/
     window.addEventListener('DOMContentLoaded', () => {
       /* 6.1) background music volume fade-in */
@@ -663,7 +644,7 @@
         }, 38000 - 21000);
       }, 21000);
 
-      /* 6.6) if music hits time>=21s, do the same star acceleration logic */
+      /* 6.6) if music hits time>=21s, do same star acceleration */
       backgroundMusic.addEventListener('timeupdate', () => {
         if (backgroundMusic.currentTime >= 21 && tunnel1.style.display !== "none") {
           tunnel1.style.display = "none";
@@ -681,14 +662,14 @@
         }
       });
 
-      /* 6.7) fade out the "scene", fade in the "final-scene" (catalog + 6 cards) */
+      /* 6.7) fade out the "scene", fade in the "final-scene" (with 6 cards) */
       function fadeOutScene() {
         const scene = document.querySelector('.scene');
         scene.style.transition = 'opacity 2s';
         scene.style.opacity = '0';
 
         setTimeout(() => {
-          // build the final-scene div dynamically (like your original)
+          // build the final-scene div dynamically
           const finalScene = document.createElement('div');
           finalScene.id = 'final-scene';
 
@@ -760,13 +741,11 @@
           }
           finalScene.appendChild(cardsGrid);
 
-          // the catalog controls container
+          // the catalog controls container (initially hidden in CSS)
           const catalogControls = document.createElement('div');
           catalogControls.id = 'catalog-controls';
           catalogControls.innerHTML = `
             <h2>my life chapters</h2>
-
-            <!-- filter by category -->
             <label for="category-select">filter by category:</label>
             <select id="category-select">
               <option value="All">All</option>
@@ -778,14 +757,11 @@
               <option value="Results">Results</option>
             </select>
 
-            <!-- sort impact toggle -->
             <button id="sort-impact-btn">sort by impact (desc)</button>
 
-            <!-- search -->
             <label for="search-input">search (title/reflection):</label>
             <input type="text" id="search-input" placeholder="type to search...">
 
-            <!-- "update results" button -->
             <button id="update-results-btn" style="margin-left: 10px;">update results</button>
 
             <div id="chapter-list"></div>
@@ -823,15 +799,15 @@
             finalScene.style.opacity = '1';
           }, 50);
 
-          /* 6.7a) hooking up the catalog UI events (filter, sort, search, CRUD) */
+          /****************************************************
+           * 6.7a) hooking up the catalog UI
+           ****************************************************/
           const catSelectEl = catalogControls.querySelector('#category-select');
           const sortImpactBtn = catalogControls.querySelector('#sort-impact-btn');
           const searchInput = catalogControls.querySelector('#search-input');
           const updateBtn = catalogControls.querySelector('#update-results-btn');
 
-          // toggle sort by impact desc
           sortImpactBtn.addEventListener('click', () => {
-            // flip the boolean
             sortByImpactDesc = !sortByImpactDesc;
             if (sortByImpactDesc) {
               sortImpactBtn.textContent = 'sort by impact (desc) [ON]';
@@ -839,18 +815,12 @@
               sortImpactBtn.textContent = 'sort by impact (desc)';
             }
           });
-
-          // set category whenever user chooses
           catSelectEl.addEventListener('change', e => {
             selectedCategory = e.target.value;
           });
-
-          // capture search term
           searchInput.addEventListener('input', e => {
             searchTerm = e.target.value;
           });
-
-          // actually re-render when user clicks update
           updateBtn.addEventListener('click', updateResults);
 
           // CRUD logic
@@ -892,10 +862,12 @@
             }
           });
 
-          // do an initial render so you see all chapters from the start
+          // do an initial render but still hidden, so if user opens catalog, it’s ready
           updateResults();
 
-          /* 6.7b) hooking up the "play" button that starts the big 6-video chain */
+          /****************************************************
+           * 6.7b) hooking up the "play" button => 6-video chain
+           ****************************************************/
           playButton.addEventListener('click', () => {
             const cards = document.querySelectorAll('#cards-grid .card');
             const card = cards[0];
@@ -1543,6 +1515,7 @@
                                                                         createReflectionCaption(5);
                                                                       });
 
+                                                                      /* the "catalog" button now reveals the catalog page */
                                                                       const catalogBtn = document.createElement('button');
                                                                       catalogBtn.id = 'catalog-btn-6';
                                                                       catalogBtn.innerText = 'catalog';
@@ -1630,7 +1603,15 @@
                                                                         video6.remove();
                                                                         markVideoWatched(5);
                                                                         finalScene.style.transform = "scale(1)";
-                                                                        // catalog is already visible & unlocked
+
+                                                                        /* once we scale back to normal, show the catalog */
+                                                                        finalScene.addEventListener('transitionend', function showCatalog() {
+                                                                          finalScene.removeEventListener('transitionend', showCatalog);
+                                                                          const catControls = document.getElementById('catalog-controls');
+                                                                          if (catControls) {
+                                                                            catControls.style.display = 'block'; /* reveal it now */
+                                                                          }
+                                                                        });
                                                                       };
 
                                                                       video6.addEventListener('ended', () => {
@@ -1640,7 +1621,14 @@
                                                                         catalogBtn.remove();
                                                                         backBtn6.remove();
                                                                         finalScene.style.transform = "scale(1)";
-                                                                        // same, show catalog
+
+                                                                        finalScene.addEventListener('transitionend', function showCatalogEnd() {
+                                                                          finalScene.removeEventListener('transitionend', showCatalogEnd);
+                                                                          const catControls = document.getElementById('catalog-controls');
+                                                                          if (catControls) {
+                                                                            catControls.style.display = 'block';
+                                                                          }
+                                                                        });
                                                                       });
                                                                     });
                                                                   });
