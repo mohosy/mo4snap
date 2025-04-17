@@ -3,30 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <title>O Tunnel with Centered Starfield</title>
-
-  <!-- modern sans-serif font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <!-- Montserrat for modern look -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
-    /********************************************************
-     * GLOBAL + LAYOUT
-     ********************************************************/
+    /* 
+      GLOBAL BASE STYLES 
+      - removed overflow: hidden from html/body so we can scroll
+      - using Montserrat as a consistent, modern font
+    */
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
-      /* allow vertical scroll, hide horizontal */
-      overflow-x: hidden;
-      overflow-y: auto;
-      font-family: 'Montserrat', sans-serif; /* modern font */
       background: black;
-      color: white;
+      min-height: 100vh;
+      overflow-x: hidden; /* keep horizontal hidden to avoid weird scrollbars */
+      font-family: 'Montserrat', sans-serif; /* modern sans-serif */
+      color: #fff; /* default text color to white if not overridden */
     }
 
-    /* the initial tunnel scene takes full viewport height */
+    /* Keep the .scene styles for the original animation sequence. */
     .scene {
-      width: 100%;
+      width: 100vw;
       height: 100vh;
       perspective: 1200px;
       position: relative;
@@ -37,15 +37,14 @@
       animation: violentShake 5s ease-in-out;
     }
     @keyframes violentShake {
-      0%   { transform: translate(0, 0); }
-      20%  { transform: translate(-30px, 30px); }
-      40%  { transform: translate(30px, -30px); }
-      60%  { transform: translate(-30px, -30px); }
-      80%  { transform: translate(30px, 30px); }
+      0% { transform: translate(0, 0); }
+      20% { transform: translate(-30px, 30px); }
+      40% { transform: translate(30px, -30px); }
+      60% { transform: translate(-30px, -30px); }
+      80% { transform: translate(30px, 30px); }
       100% { transform: translate(0, 0); }
     }
 
-    /* starfield behind the tunnel */
     #stars-container {
       position: absolute;
       top: 0;
@@ -75,7 +74,6 @@
       }
     }
 
-    /* the "Mo" text that zooms in */
     #mo-container {
       position: absolute;
       z-index: 3;
@@ -84,15 +82,14 @@
     #mo-text {
       color: white;
       font-size: 80px;
-      font-family: Arial, sans-serif;
+      font-family: Arial, sans-serif; /* original, not removing */
     }
     @keyframes zoomIn {
-      0%   { transform: scale(1);   opacity: 1; }
-      99%  { transform: scale(80);  opacity: 1; }
-      100% { transform: scale(80);  opacity: 0; }
+      0% { transform: scale(1); opacity: 1; }
+      99% { transform: scale(80); opacity: 1; }
+      100% { transform: scale(80); opacity: 0; }
     }
 
-    /* quick white flash after the "Mo" text zoom */
     #flash {
       position: absolute;
       top: 0;
@@ -106,11 +103,10 @@
       animation: flashAnim 0.5s 6s forwards;
     }
     @keyframes flashAnim {
-      0%   { opacity: 1; }
+      0% { opacity: 1; }
       100% { opacity: 0; }
     }
 
-    /* 3D tunnel behind everything */
     #tunnel-container {
       position: absolute;
       width: 100%;
@@ -129,8 +125,8 @@
       animation: tunnelTravel 15s 6s linear forwards;
     }
     @keyframes tunnelTravel {
-      0%   { transform: translate(-50%, -50%) translateZ(-3500px) rotateZ(0deg); }
-      100% { transform: translate(-50%, -50%) translateZ(0)       rotateZ(720deg); }
+      0% { transform: translate(-50%, -50%) translateZ(-3500px) rotateZ(0deg); }
+      100% { transform: translate(-50%, -50%) translateZ(0) rotateZ(720deg); }
     }
     .tunnel-ring {
       position: absolute;
@@ -139,7 +135,7 @@
       transform-style: preserve-3d;
       transform-origin: center;
       font-size: 40px;
-      font-family: Arial, sans-serif;
+      font-family: Arial, sans-serif; /* original, not removing */
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -148,27 +144,27 @@
       height: 80px;
     }
 
-    /* final scene is now position: relative, at least 100vh,
-       so it won't get cut off at the top */
+    /* final scene container - now scrollable if content grows */
     #final-scene {
-      position: relative;
-      min-height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
+      min-height: 100vh; /* ensure it's tall enough to scroll */
       background: black;
-      color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      opacity: 0; /* fade in from 0 to 1 */
-      transition: opacity 2s ease-in-out, transform 5s ease-in-out !important;
-      transform: scale(1);
+      opacity: 0;
+      transition: opacity 2s ease-in-out, transform 3s ease-in-out;
       z-index: 5;
+      transform: scale(1);
       will-change: transform;
       backface-visibility: hidden;
+      overflow-y: auto; /* allow vertical scroll in the final scene if needed */
     }
 
-    /* starfield for the final scene’s background */
     #final-stars-container {
       position: absolute;
       top: 0;
@@ -189,7 +185,7 @@
       animation: twinkle 3s infinite ease-in-out alternate;
     }
     @keyframes twinkle {
-      0%   { opacity: 0.2; }
+      0% { opacity: 0.2; }
       100% { opacity: 1; }
     }
     .shooting-star {
@@ -211,10 +207,9 @@
       }
     }
 
-    /* text and button in final scene */
     #final-scene h1 {
       margin: 0 0 20px;
-      font-size: 2.4em;
+      font-size: 2.8em;
       text-align: center;
       text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
       z-index: 1;
@@ -238,31 +233,35 @@
       z-index: 1;
     }
 
-    /* the 6 cards in final scene that lead to each video */
-    #cards-grid {
+    /* card grid in final scene */
+    #final-scene #cards-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 30px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
       width: 80%;
       max-width: 800px;
-      margin-bottom: 40px;
       z-index: 1;
+      margin-bottom: 40px;
     }
     #final-scene .card {
       background: rgba(255, 255, 255, 0.1);
       border: 2px solid rgba(255, 255, 255, 0.2);
       border-radius: 15px;
+      height: 250px;
       backdrop-filter: blur(5px);
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       z-index: 1;
-      height: 200px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
 
-    /* reflection caption that shows up during videos */
+    video::-webkit-media-controls,
+    video::-webkit-media-controls-enclosure {
+      display: none !important;
+    }
+
+    /* reflection caption for video */
     #video-reflection-caption {
       position: fixed;
       bottom: 30px;
@@ -277,27 +276,32 @@
       z-index: 9999;
     }
 
-    /* modern catalog controls (hidden by default) */
+    /* 
+      CATALOG CONTROLS 
+      - originally hidden, but now always visible
+      - modernizing styles: white background, dark text, shadow, radius, consistent spacing
+    */
     #catalog-controls {
-      display: none; /* hide until user clicks "catalog" at the end of data6 */
-      background: rgba(255,255,255,0.06);
+      /* remove display: none; so it’s always shown */
+      background: #fff;
+      color: #333;
       padding: 20px;
       margin: 30px auto;
       border-radius: 8px;
-      width: 90%;
+      width: 80%;
       max-width: 800px;
-      color: #fff;
       z-index: 10;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
     #catalog-controls h2 {
       margin-top: 0;
       text-align: center;
-      font-weight: 700;
-      margin-bottom: 10px;
     }
 
-    /* layout for the listed chapters */
+    /* 
+      spacing and grid layout for chapter cards 
+      plus a modern style with shadow, rounding, etc.
+    */
     #chapter-list {
       margin-top: 20px;
       display: grid;
@@ -305,80 +309,73 @@
       gap: 20px;
     }
     .chapter-card {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: #f8f8f8;
+      border: 1px solid #eee;
       border-radius: 6px;
       padding: 15px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-    .chapter-card h3 {
-      margin-top: 0;
-      margin-bottom: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      color: #333;
     }
 
-    /* inputs, selects, buttons (consistent style) */
+    /* 
+      modern inputs and buttons
+      to match each other in style
+    */
     #catalog-controls input,
     #catalog-controls select,
     #catalog-controls button,
     #catalog-controls textarea {
-      margin: 5px;
+      margin: 5px 0;
       padding: 8px 10px;
       border-radius: 4px;
-      border: none;
+      border: 1px solid #ccc;
       font-family: 'Montserrat', sans-serif;
-      font-size: 0.95em;
+      font-size: 0.9em;
+      outline: none;
     }
-    /* consistent dark background for inputs */
-    #catalog-controls select,
-    #catalog-controls input[type="text"],
-    #catalog-controls input[type="number"],
-    #catalog-controls textarea {
-      background: #333;
-      color: #fff;
-      border: 1px solid #555;
-    }
-    /* modern button style */
     #catalog-controls button {
-      background: #17b978;
-      color: white;
+      background-color: #007bff;
+      color: #fff;
       cursor: pointer;
-      border: none;
-      transition: background 0.3s;
+      transition: background-color 0.2s;
     }
     #catalog-controls button:hover {
-      background: #139f66;
+      background-color: #0056b3;
     }
 
-    /* spacing the CRUD section so it doesn’t feel cluttered */
+    /*
+      space out the CRUD section 
+    */
     #crud-operations {
-      margin-top: 30px;
+      margin-top: 20px;
     }
     #crud-operations h3 {
       margin-top: 20px;
-      margin-bottom: 5px;
+      font-weight: 600;
       font-size: 1.1em;
-      font-weight: 700;
+    }
+    #crud-operations input,
+    #crud-operations textarea {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
     }
 
-    /* on smaller screens, single column for #chapter-list */
-    @media (max-width: 600px) {
-      #chapter-list {
-        grid-template-columns: 1fr;
-      }
-      #cards-grid {
-        grid-template-columns: 1fr;
-      }
+    /* extra breathing room + center everything inside #catalog-controls */
+    #catalog-controls {
+      text-align: center;
     }
 
-    /* hide default media controls on the video elements */
-    video::-webkit-media-controls,
-    video::-webkit-media-controls-enclosure {
-      display: none !important;
+    /* 
+      final scene transitions 
+    */
+    #final-scene {
+      transition: opacity 2s ease-in-out, transform 5s ease-in-out !important;
     }
   </style>
 </head>
+
 <body>
-  <!-- the initial 3D tunnel scene -->
   <div class="scene">
     <div id="stars-container"></div>
     <div id="mo-container">
@@ -396,9 +393,9 @@
   <audio id="background-music" src="zoom-in.mp3" autoplay></audio>
 
   <script>
-    /***********************************************************
-     * 1) LIFE CHAPTERS DATA
-     ***********************************************************/
+    /* 
+      The array of life chapters 
+    */
     const lifeChapters = [
       {
         title: "Intro: Working 3 Jobs",
@@ -444,18 +441,31 @@
       }
     ];
 
-    /***********************************************************
-     * 2) MARKING VIDEO WATCHED
-     ***********************************************************/
+    /*
+      Removed any logic that hides the catalog unless all videos are watched.
+      The catalog is now always visible.
+      We keep the function checkAllVideosWatched() but remove the gating display code.
+    */
     function markVideoWatched(index) {
       let watched = JSON.parse(localStorage.getItem('watchedChapters')) || {};
       watched[index] = true;
       localStorage.setItem('watchedChapters', JSON.stringify(watched));
+      // we no longer call checkAllVideosWatched() to show the catalog
     }
 
-    /***********************************************************
-     * 3) REFLECTION CAPTION DURING VIDEO
-     ***********************************************************/
+    function checkAllVideosWatched() {
+      // previously used to display/hide catalog. now does nothing major.
+      let watched = JSON.parse(localStorage.getItem('watchedChapters')) || {};
+      let count = 0;
+      for (let key in watched) {
+        if (watched[key]) count++;
+      }
+      // originally: if (count === 6) show the catalog. removed that gating.
+    }
+
+    /* 
+      Reflection caption logic 
+    */
     function createReflectionCaption(index) {
       removeReflectionCaption();
       const captionDiv = document.createElement('div');
@@ -468,100 +478,251 @@
       if (existing) existing.remove();
     }
 
-    /***********************************************************
-     * 4) FILTER/SORT/SEARCH + RENDER
-     ***********************************************************/
-    let selectedCategory = 'All';
-    let searchTerm = '';
-    let sortByImpactDesc = false;
+    /*
+      The main function to render chapters.
+      - Now called freely (without gating).
+      - Filters by category, search, and sorts if needed.
+    */
+    function renderChapters() {
+      // get values from category select, search input
+      const categorySelect = document.getElementById('category-select');
+      const selectedCategory = categorySelect ? categorySelect.value : 'All';
+      const searchInput = document.getElementById('search-input');
+      const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
 
-    function updateResults() {
+      // start with all
       let displayed = lifeChapters.slice();
 
       // filter by category
       if (selectedCategory !== 'All') {
-        displayed = displayed.filter(chap => chap.category === selectedCategory);
-      }
-      // filter by search
-      if (searchTerm.trim() !== '') {
-        const lower = searchTerm.toLowerCase();
-        displayed = displayed.filter(chap => {
-          const t = chap.title.toLowerCase();
-          const r = chap.reflection.toLowerCase();
-          return t.includes(lower) || r.includes(lower);
+        displayed = displayed.filter(function(chap) {
+          return chap.category === selectedCategory;
         });
       }
-      // sort if toggled
-      if (sortByImpactDesc) {
-        displayed.sort((a, b) => b.impact - a.impact);
-      }
 
-      // render them
+      // filter by search
+      displayed = displayed.filter(function(chap) {
+        const t = chap.title.toLowerCase();
+        const r = chap.reflection.toLowerCase();
+        return (t.includes(searchTerm) || r.includes(searchTerm));
+      });
+
+      // update DOM
       const listDiv = document.getElementById('chapter-list');
       if (!listDiv) return;
       listDiv.innerHTML = '';
 
-      displayed.forEach(chap => {
+      for (let i = 0; i < displayed.length; i++) {
+        const c = displayed[i];
         const card = document.createElement('div');
         card.className = 'chapter-card';
 
         const fileEl = document.createElement('p');
-        fileEl.textContent = "filename: " + chap.filename;
+        fileEl.textContent = "filename: " + c.filename;
         card.appendChild(fileEl);
 
         const titleEl = document.createElement('h3');
-        titleEl.textContent = chap.title;
+        titleEl.textContent = c.title;
         card.appendChild(titleEl);
 
         const catEl = document.createElement('p');
-        catEl.textContent = "category: " + chap.category;
+        catEl.textContent = "category: " + c.category;
         card.appendChild(catEl);
 
         const impactEl = document.createElement('p');
-        impactEl.textContent = "impact: " + chap.impact;
+        impactEl.textContent = "impact: " + c.impact;
         card.appendChild(impactEl);
 
         const refEl = document.createElement('p');
-        refEl.textContent = "reflection: " + chap.reflection;
+        refEl.textContent = "reflection: " + c.reflection;
         card.appendChild(refEl);
 
         listDiv.appendChild(card);
-      });
+      }
     }
 
-    /***********************************************************
-     * 5) CRUD
-     ***********************************************************/
+    /* 
+      Sort by impact descending
+    */
+    function sortByImpactDesc() {
+      lifeChapters.sort(function(a, b) {
+        return b.impact - a.impact;
+      });
+      renderChapters();
+    }
+
+    /*
+      Unused "unlockCatalog" logic was originally used after watching videos.
+      We'll keep it but remove the gating - everything is already unlocked.
+    */
+    function unlockCatalog() {
+      const controls = document.getElementById('catalog-controls');
+      if (controls) controls.style.display = 'block';
+
+      // remove any disabled from select, button, input, etc.
+      const cat = document.getElementById('category-select');
+      const sortBtn = document.getElementById('sort-impact-btn');
+      const searchInput = document.getElementById('search-input');
+
+      if (cat) cat.disabled = false;
+      if (sortBtn) sortBtn.disabled = false;
+      if (searchInput) searchInput.disabled = false;
+
+      // if we never appended shuffle button, we do it now
+      if (!document.getElementById('shuffle-btn')) {
+        const shuffleBtn = document.createElement('button');
+        shuffleBtn.id = 'shuffle-btn';
+        shuffleBtn.textContent = 'shuffle chapters';
+        shuffleBtn.style.marginLeft = '10px';
+        shuffleBtn.style.padding = '10px 20px';
+        shuffleBtn.style.fontSize = '1em';
+        shuffleBtn.style.cursor = 'pointer';
+        shuffleBtn.style.borderRadius = '5px';
+        shuffleBtn.style.zIndex = '20';
+        shuffleBtn.addEventListener('click', () => {
+          for (let i = lifeChapters.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [lifeChapters[i], lifeChapters[j]] = [lifeChapters[j], lifeChapters[i]];
+          }
+          renderChapters();
+        });
+        controls.appendChild(shuffleBtn);
+      }
+
+      renderChapters();
+    }
+
+    /*
+      CRUD operations
+    */
     function addChapter(newChap) {
       lifeChapters.push(newChap);
-      updateResults();
+      renderChapters();
     }
     function removeChapterByTitle(title) {
-      let idx = lifeChapters.findIndex(ch => ch.title.toLowerCase() === title.toLowerCase());
-      if (idx !== -1) {
-        lifeChapters.splice(idx, 1);
+      let index = lifeChapters.findIndex(ch => ch.title.toLowerCase() === title.toLowerCase());
+      if (index !== -1) {
+        lifeChapters.splice(index, 1);
       }
-      updateResults();
+      renderChapters();
     }
     function updateChapter(oldTitle, updated) {
-      let idx = lifeChapters.findIndex(ch => ch.title.toLowerCase() === oldTitle.toLowerCase());
-      if (idx !== -1) {
-        if (updated.title)      lifeChapters[idx].title      = updated.title;
-        if (updated.filename)   lifeChapters[idx].filename   = updated.filename;
-        if (updated.category)   lifeChapters[idx].category   = updated.category;
-        if (updated.reflection) lifeChapters[idx].reflection = updated.reflection;
+      let index = lifeChapters.findIndex(ch => ch.title.toLowerCase() === oldTitle.toLowerCase());
+      if (index !== -1) {
+        lifeChapters[index].title = updated.title ? updated.title : lifeChapters[index].title;
+        lifeChapters[index].filename = updated.filename ? updated.filename : lifeChapters[index].filename;
+        lifeChapters[index].category = updated.category ? updated.category : lifeChapters[index].category;
+        lifeChapters[index].reflection = updated.reflection ? updated.reflection : lifeChapters[index].reflection;
         if (typeof updated.impact === 'number') {
-          lifeChapters[idx].impact = updated.impact;
+          lifeChapters[index].impact = updated.impact;
         }
       }
-      updateResults();
+      renderChapters();
     }
 
-    /***********************************************************
-     * 6) FULL VIDEO TRANSITION CHAIN
-     ***********************************************************/
+    /*
+      On DOMContentLoaded:
+      - remove "display: none" gating from #catalog-controls
+      - remove 'disabled' from filter/sort/search
+      - set up event listeners
+      - always call renderChapters so the catalog is visible from start
+    */
     window.addEventListener('DOMContentLoaded', () => {
-      /* 6.1) background music volume fade-in */
+      // originally checks watched status, but now not gating the UI
+      checkAllVideosWatched();
+
+      // set up event listeners for the filter/sort
+      const catSelect = document.getElementById('category-select');
+      const sortBtn = document.getElementById('sort-impact-btn');
+      const searchInput = document.getElementById('search-input');
+      if (catSelect) catSelect.addEventListener('change', renderChapters);
+      if (sortBtn) sortBtn.addEventListener('click', sortByImpactDesc);
+      if (searchInput) searchInput.disabled = false; 
+      if (searchInput) searchInput.addEventListener('keyup', renderChapters);
+
+      // set up CRUD buttons
+      const addBtn = document.getElementById('add-chapter-btn');
+      const removeBtn = document.getElementById('remove-chapter-btn');
+      const updateBtn = document.getElementById('update-chapter-btn');
+
+      if (addBtn) {
+        addBtn.addEventListener('click', () => {
+          const t = document.getElementById('add-title').value.trim();
+          const f = document.getElementById('add-filename').value.trim();
+          const cat = document.getElementById('add-category').value.trim();
+          const ref = document.getElementById('add-reflection').value.trim();
+          const imp = parseInt(document.getElementById('add-impact').value.trim()) || 0;
+          if (t && f && cat && ref) {
+            addChapter({
+              title: t,
+              filename: f,
+              category: cat,
+              reflection: ref,
+              impact: imp
+            });
+          }
+        });
+      }
+      if (removeBtn) {
+        removeBtn.addEventListener('click', () => {
+          const rtitle = document.getElementById('remove-title').value.trim();
+          if (rtitle) removeChapterByTitle(rtitle);
+        });
+      }
+      if (updateBtn) {
+        updateBtn.addEventListener('click', () => {
+          const oldT = document.getElementById('update-old-title').value.trim();
+          const newT = document.getElementById('update-new-title').value.trim();
+          const newF = document.getElementById('update-new-filename').value.trim();
+          const newC = document.getElementById('update-new-category').value.trim();
+          const newR = document.getElementById('update-new-reflection').value.trim();
+          const newI = parseInt(document.getElementById('update-new-impact').value.trim());
+          if (oldT) {
+            updateChapter(oldT, {
+              title: newT || null,
+              filename: newF || null,
+              category: newC || null,
+              reflection: newR || null,
+              impact: isNaN(newI) ? null : newI
+            });
+          }
+        });
+      }
+
+      // ensure no disabled on the filter controls from the start
+      if (catSelect) catSelect.disabled = false;
+      if (sortBtn) sortBtn.disabled = false;
+
+      // add the "update results" button below the filter controls
+      // which simply re-calls renderChapters()
+      const catalogControls = document.getElementById('catalog-controls');
+      if (catalogControls) {
+        const updateResultsBtn = document.createElement('button');
+        updateResultsBtn.id = 'update-results-btn';
+        updateResultsBtn.textContent = 'update results';
+        updateResultsBtn.style.marginLeft = '10px';
+        updateResultsBtn.addEventListener('click', () => {
+          renderChapters();
+        });
+        catalogControls.insertBefore(updateResultsBtn, document.getElementById('chapter-list'));
+      }
+
+      // always display #catalog-controls from the start
+      if (catalogControls) {
+        catalogControls.style.display = 'block';
+      }
+
+      // call renderChapters once to populate the catalog
+      renderChapters();
+
+      /*
+        Original animation logic for starfield, tunnel, etc.
+        Not removing any of it, just leaving as-is.
+      */
+      const oTarget = document.getElementById('o-target');
+      const moContainer = document.getElementById('mo-container');
+      const tunnel1 = document.getElementById('tunnel');
+      const starsContainer = document.getElementById('stars-container');
       const backgroundMusic = document.getElementById('background-music');
       backgroundMusic.volume = 0.05;
       const volumeInterval = setInterval(() => {
@@ -572,18 +733,13 @@
         }
       }, 200);
 
-      /* 6.2) set transform origin for the "Mo" container */
-      const oTarget = document.getElementById('o-target');
-      const moContainer = document.getElementById('mo-container');
       const oRect = oTarget.getBoundingClientRect();
       const moRect = moContainer.getBoundingClientRect();
       const xOrigin = oRect.left + oRect.width / 2 - moRect.left;
       const yOrigin = oRect.top + oRect.height / 2 - moRect.top;
       moContainer.style.transformOrigin = `${xOrigin}px ${yOrigin}px`;
 
-      /* 6.3) generate the 350 tunnel rings */
-      const tunnel1 = document.getElementById('tunnel');
-      function generateTunnelRings(tunnelElem) {
+      const generateTunnelRings = (tunnelElem) => {
         const ringCount = 350;
         for (let i = 0; i < ringCount; i++) {
           const ring = document.createElement('div');
@@ -596,11 +752,9 @@
           ring.textContent = 'o';
           tunnelElem.appendChild(ring);
         }
-      }
+      };
       generateTunnelRings(tunnel1);
 
-      /* 6.4) generate initial starfield for the 3D scene */
-      const starsContainer = document.getElementById('stars-container');
       const starCount = 100;
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
@@ -620,7 +774,7 @@
         const angle = Math.atan2(posY - centerY, posX - centerX);
         const angleDeg = angle * 180 / Math.PI;
         star.style.setProperty('--rotation', `${angleDeg}deg`);
-        star.style.setProperty('--offset', '500px');
+        star.style.setProperty('--offset', `500px`);
         const duration = 1.5 + Math.random() * 1.5;
         star.style.animationDuration = `${duration}s`;
         const delay = 6 + Math.random();
@@ -628,7 +782,6 @@
         starsContainer.appendChild(star);
       }
 
-      /* 6.5) after 21s, hide the tunnel and accelerate the stars. */
       setTimeout(() => {
         tunnel1.style.display = "none";
         const stars = document.querySelectorAll('.star');
@@ -641,10 +794,9 @@
         }, 500);
         setTimeout(() => {
           clearInterval(accelerationInterval);
-        }, 38000 - 21000);
+        }, (38000 - 21000));
       }, 21000);
 
-      /* 6.6) if music hits time>=21s, do same star acceleration */
       backgroundMusic.addEventListener('timeupdate', () => {
         if (backgroundMusic.currentTime >= 21 && tunnel1.style.display !== "none") {
           tunnel1.style.display = "none";
@@ -658,27 +810,22 @@
           }, 500);
           setTimeout(() => {
             clearInterval(accelerationInterval);
-          }, 38000 - 21000);
+          }, (38000 - 21000));
         }
       });
 
-      /* 6.7) fade out the "scene", fade in the "final-scene" (with 6 cards) */
       function fadeOutScene() {
         const scene = document.querySelector('.scene');
         scene.style.transition = 'opacity 2s';
         scene.style.opacity = '0';
-
         setTimeout(() => {
-          // build the final-scene div dynamically
           const finalScene = document.createElement('div');
           finalScene.id = 'final-scene';
 
-          // starfield for final scene
           const finalStarsContainer = document.createElement('div');
           finalStarsContainer.id = 'final-stars-container';
           finalScene.appendChild(finalStarsContainer);
 
-          // scatter some final stars
           const finalStarCount = 80;
           for (let i = 0; i < finalStarCount; i++) {
             const star = document.createElement('div');
@@ -689,7 +836,6 @@
             star.style.top = y + '%';
             finalStarsContainer.appendChild(star);
           }
-          // some shooting stars
           const shootingStarCount = 6;
           for (let i = 0; i < shootingStarCount; i++) {
             const sstar = document.createElement('div');
@@ -700,7 +846,7 @@
             sstar.style.top = yy + 'px';
             const angle = Math.random() * 360;
             sstar.style.setProperty('--rotation', `${angle}deg`);
-            sstar.style.setProperty('--offset', '600px');
+            sstar.style.setProperty('--offset', `600px`);
             const dur = 1.5 + Math.random() * 2;
             sstar.style.animationDuration = `${dur}s`;
             const del = Math.random() * 10;
@@ -708,7 +854,6 @@
             finalStarsContainer.appendChild(sstar);
           }
 
-          // heading + subtitle + play button
           const title = document.createElement('h1');
           title.textContent = 'Welcome to My Catalog Story';
           finalScene.appendChild(title);
@@ -722,7 +867,6 @@
           playButton.textContent = 'play';
           finalScene.appendChild(playButton);
 
-          // the 6 "cards" with numbers 1..6
           const cardsGrid = document.createElement('div');
           cardsGrid.id = 'cards-grid';
           for (let i = 0; i < 6; i++) {
@@ -741,7 +885,6 @@
           }
           finalScene.appendChild(cardsGrid);
 
-          // the catalog controls container (initially hidden in CSS)
           const catalogControls = document.createElement('div');
           catalogControls.id = 'catalog-controls';
           catalogControls.innerHTML = `
@@ -756,16 +899,10 @@
               <option value="Creation">Creation</option>
               <option value="Results">Results</option>
             </select>
-
             <button id="sort-impact-btn">sort by impact (desc)</button>
-
             <label for="search-input">search (title/reflection):</label>
             <input type="text" id="search-input" placeholder="type to search...">
-
-            <button id="update-results-btn" style="margin-left: 10px;">update results</button>
-
             <div id="chapter-list"></div>
-
             <div id="crud-operations">
               <h3>add chapter</h3>
               <input type="text" id="add-title" placeholder="title">
@@ -791,83 +928,11 @@
           `;
           finalScene.appendChild(catalogControls);
 
-          // add final-scene to the body
           document.body.appendChild(finalScene);
-
-          // fade it in
           setTimeout(() => {
             finalScene.style.opacity = '1';
           }, 50);
 
-          /****************************************************
-           * 6.7a) hooking up the catalog UI
-           ****************************************************/
-          const catSelectEl = catalogControls.querySelector('#category-select');
-          const sortImpactBtn = catalogControls.querySelector('#sort-impact-btn');
-          const searchInput = catalogControls.querySelector('#search-input');
-          const updateBtn = catalogControls.querySelector('#update-results-btn');
-
-          sortImpactBtn.addEventListener('click', () => {
-            sortByImpactDesc = !sortByImpactDesc;
-            if (sortByImpactDesc) {
-              sortImpactBtn.textContent = 'sort by impact (desc) [ON]';
-            } else {
-              sortImpactBtn.textContent = 'sort by impact (desc)';
-            }
-          });
-          catSelectEl.addEventListener('change', e => {
-            selectedCategory = e.target.value;
-          });
-          searchInput.addEventListener('input', e => {
-            searchTerm = e.target.value;
-          });
-          updateBtn.addEventListener('click', updateResults);
-
-          // CRUD logic
-          catalogControls.querySelector('#add-chapter-btn').addEventListener('click', () => {
-            const t = catalogControls.querySelector('#add-title').value.trim();
-            const f = catalogControls.querySelector('#add-filename').value.trim();
-            const c = catalogControls.querySelector('#add-category').value.trim();
-            const r = catalogControls.querySelector('#add-reflection').value.trim();
-            const i = parseInt(catalogControls.querySelector('#add-impact').value.trim()) || 0;
-            if (t && f && c && r) {
-              addChapter({
-                title: t,
-                filename: f,
-                category: c,
-                reflection: r,
-                impact: i
-              });
-            }
-          });
-          catalogControls.querySelector('#remove-chapter-btn').addEventListener('click', () => {
-            const rtitle = catalogControls.querySelector('#remove-title').value.trim();
-            if (rtitle) removeChapterByTitle(rtitle);
-          });
-          catalogControls.querySelector('#update-chapter-btn').addEventListener('click', () => {
-            const oldT = catalogControls.querySelector('#update-old-title').value.trim();
-            const newT = catalogControls.querySelector('#update-new-title').value.trim();
-            const newF = catalogControls.querySelector('#update-new-filename').value.trim();
-            const newC = catalogControls.querySelector('#update-new-category').value.trim();
-            const newR = catalogControls.querySelector('#update-new-reflection').value.trim();
-            const newI = parseInt(catalogControls.querySelector('#update-new-impact').value.trim());
-            if (oldT) {
-              updateChapter(oldT, {
-                title: newT || null,
-                filename: newF || null,
-                category: newC || null,
-                reflection: newR || null,
-                impact: isNaN(newI) ? null : newI
-              });
-            }
-          });
-
-          // do an initial render but still hidden, so if user opens catalog, it’s ready
-          updateResults();
-
-          /****************************************************
-           * 6.7b) hooking up the "play" button => 6-video chain
-           ****************************************************/
           playButton.addEventListener('click', () => {
             const cards = document.querySelectorAll('#cards-grid .card');
             const card = cards[0];
@@ -957,14 +1022,15 @@
                     video1.remove();
                     finalScene.style.transition = "transform 3s ease-in-out";
                     finalScene.style.transform = "scale(1)";
+
                     finalScene.addEventListener('transitionend', function handlerZoomOut() {
                       finalScene.removeEventListener('transitionend', handlerZoomOut);
                       const cardMiddle = cards[1];
                       if (!cardMiddle) return;
-                      const fsRect = finalScene.getBoundingClientRect();
-                      const cRect = cardMiddle.getBoundingClientRect();
-                      const cx = cRect.left + cRect.width / 2 - fsRect.left;
-                      const cy = cRect.top + cRect.height / 2 - fsRect.top;
+                      const finalSceneRect = finalScene.getBoundingClientRect();
+                      const cardRect = cardMiddle.getBoundingClientRect();
+                      const cx = cardRect.left + cardRect.width / 2 - finalSceneRect.left;
+                      const cy = cardRect.top + cardRect.height / 2 - finalSceneRect.top;
                       finalScene.style.transformOrigin = `${cx}px ${cy}px`;
                       finalScene.style.transform = "scale(80)";
                       finalScene.addEventListener('transitionend', function handlerZoomIn2() {
@@ -1035,16 +1101,16 @@
                                 video2.pause();
                                 video2.remove();
                                 finalScene.style.transform = "scale(1)";
-
                                 finalScene.addEventListener('transitionend', function goBackToVideo1() {
                                   finalScene.removeEventListener('transitionend', goBackToVideo1);
                                   const cardVid1 = cards[0];
                                   if (!cardVid1) return;
                                   const cardRect1 = cardVid1.getBoundingClientRect();
-                                  const cardCenterX1 = cardRect1.left + cardRect1.width / 2 - fsRect.left;
-                                  const cardCenterY1 = cardRect1.top + cardRect1.height / 2 - fsRect.top;
+                                  const cardCenterX1 = cardRect1.left + cardRect1.width / 2 - finalSceneRect.left;
+                                  const cardCenterY1 = cardRect1.top + cardRect1.height / 2 - finalSceneRect.top;
                                   finalScene.style.transformOrigin = `${cardCenterX1}px ${cardCenterY1}px`;
                                   finalScene.style.transform = "scale(80)";
+
                                   finalScene.addEventListener('transitionend', function reEnterVideo1() {
                                     finalScene.removeEventListener('transitionend', reEnterVideo1);
                                     const video1again = document.createElement('video');
@@ -1128,11 +1194,10 @@
                                             const card2 = cards[1];
                                             if (!card2) return;
                                             const cardRect2 = card2.getBoundingClientRect();
-                                            const cx2 = cardRect2.left + cardRect2.width / 2 - fsRect.left;
-                                            const cy2 = cardRect2.top + cardRect2.height / 2 - fsRect.top;
+                                            const cx2 = cardRect2.left + cardRect2.width / 2 - finalSceneRect.left;
+                                            const cy2 = cardRect2.top + cardRect2.height / 2 - finalSceneRect.top;
                                             finalScene.style.transformOrigin = `${cx2}px ${cy2}px`;
                                             finalScene.style.transform = "scale(80)";
-
                                             finalScene.addEventListener('transitionend', function reEnterVideo2() {
                                               finalScene.removeEventListener('transitionend', reEnterVideo2);
                                               const video2b = document.createElement('video');
@@ -1176,18 +1241,16 @@
                                 video2.remove();
                                 finalScene.style.transition = "transform 3s ease-in-out";
                                 finalScene.style.transform = "scale(1)";
-
                                 finalScene.addEventListener('transitionend', function handlerZoomOut2() {
                                   finalScene.removeEventListener('transitionend', handlerZoomOut2);
                                   const cardForVideo3 = cards[2];
                                   if (!cardForVideo3) return;
-                                  const fRect2 = finalScene.getBoundingClientRect();
-                                  const cRect3 = cardForVideo3.getBoundingClientRect();
-                                  const cardCenterX3 = cRect3.left + cRect3.width / 2 - fRect2.left;
-                                  const cardCenterY3 = cRect3.top + cRect3.height / 2 - fRect2.top;
+                                  const finalSceneRect2 = finalScene.getBoundingClientRect();
+                                  const cardRect3 = cardForVideo3.getBoundingClientRect();
+                                  const cardCenterX3 = cardRect3.left + cardRect3.width / 2 - finalSceneRect2.left;
+                                  const cardCenterY3 = cardRect3.top + cardRect3.height / 2 - finalSceneRect2.top;
                                   finalScene.style.transformOrigin = `${cardCenterX3}px ${cardCenterY3}px`;
                                   finalScene.style.transform = "scale(80)";
-
                                   finalScene.addEventListener('transitionend', function handlerZoomIn3() {
                                     finalScene.removeEventListener('transitionend', handlerZoomIn3);
                                     const video3 = document.createElement('video');
@@ -1256,7 +1319,6 @@
                                             video3.pause();
                                             video3.remove();
                                             finalScene.style.transform = "scale(1)";
-
                                             finalScene.addEventListener('transitionend', function backToVideo2() {
                                               finalScene.removeEventListener('transitionend', backToVideo2);
                                               const card2again = cards[1];
@@ -1267,7 +1329,6 @@
                                               const ccy2 = c2Rect.top + c2Rect.height/2 - fsRect.top;
                                               finalScene.style.transformOrigin = `${ccx2}px ${ccy2}px`;
                                               finalScene.style.transform = "scale(80)";
-
                                               finalScene.addEventListener('transitionend', function reZoomVid2() {
                                                 finalScene.removeEventListener('transitionend', reZoomVid2);
                                                 const video2re = document.createElement('video');
@@ -1305,15 +1366,14 @@
                                             video3.pause();
                                             video3.remove();
                                             finalScene.style.transform = "scale(1)";
-
                                             finalScene.addEventListener('transitionend', function handlerZoomOut3() {
                                               finalScene.removeEventListener('transitionend', handlerZoomOut3);
                                               const cardForVideo4 = cards[3];
                                               if (!cardForVideo4) return;
-                                              const fsRect3 = finalScene.getBoundingClientRect();
-                                              const cRect4 = cardForVideo4.getBoundingClientRect();
-                                              const cardCenterX4 = cRect4.left + cRect4.width / 2 - fsRect3.left;
-                                              const cardCenterY4 = cRect4.top + cRect4.height / 2 - fsRect3.top;
+                                              const finalSceneRect3 = finalScene.getBoundingClientRect();
+                                              const cardRect4 = cardForVideo4.getBoundingClientRect();
+                                              const cardCenterX4 = cardRect4.left + cardRect4.width / 2 - finalSceneRect3.left;
+                                              const cardCenterY4 = cardRect4.top + cardRect4.height / 2 - finalSceneRect3.top;
                                               finalScene.style.transformOrigin = `${cardCenterX4}px ${cardCenterY4}px`;
                                               finalScene.style.transform = "scale(80)";
 
@@ -1389,7 +1449,6 @@
                                                         video4.pause();
                                                         video4.remove();
                                                         finalScene.style.transform = "scale(1)";
-
                                                         finalScene.addEventListener('transitionend', function zoomToVid5() {
                                                           finalScene.removeEventListener('transitionend', zoomToVid5);
                                                           const cardForVideo5 = cards[4];
@@ -1400,7 +1459,6 @@
                                                           const cyf = rect5.top + rect5.height / 2 - fsRect.top;
                                                           finalScene.style.transformOrigin = `${cxf}px ${cyf}px`;
                                                           finalScene.style.transform = "scale(80)";
-
                                                           finalScene.addEventListener('transitionend', function handlerZoomIn5() {
                                                             finalScene.removeEventListener('transitionend', handlerZoomIn5);
                                                             const video5 = document.createElement('video');
@@ -1480,7 +1538,6 @@
                                                                   video5.remove();
                                                                   markVideoWatched(4);
                                                                   finalScene.style.transform = "scale(1)";
-
                                                                   finalScene.addEventListener('transitionend', function zoomToVid6() {
                                                                     finalScene.removeEventListener('transitionend', zoomToVid6);
                                                                     const cardForVideo6 = cards[5];
@@ -1491,7 +1548,6 @@
                                                                     const cysix = rect6.top + rect6.height / 2 - fsRect.top;
                                                                     finalScene.style.transformOrigin = `${cxsix}px ${cysix}px`;
                                                                     finalScene.style.transform = "scale(80)";
-
                                                                     finalScene.addEventListener('transitionend', function handlerZoomIn6() {
                                                                       finalScene.removeEventListener('transitionend', handlerZoomIn6);
                                                                       const video6 = document.createElement('video');
@@ -1515,7 +1571,6 @@
                                                                         createReflectionCaption(5);
                                                                       });
 
-                                                                      /* the "catalog" button now reveals the catalog page */
                                                                       const catalogBtn = document.createElement('button');
                                                                       catalogBtn.id = 'catalog-btn-6';
                                                                       catalogBtn.innerText = 'catalog';
@@ -1553,7 +1608,6 @@
                                                                         video6.pause();
                                                                         video6.remove();
                                                                         finalScene.style.transform = "scale(1)";
-
                                                                         finalScene.addEventListener('transitionend', function goBackToVideo5() {
                                                                           finalScene.removeEventListener('transitionend', goBackToVideo5);
                                                                           const cardVid5 = cards[4];
@@ -1563,7 +1617,6 @@
                                                                           const centerY5 = cardRect5.top + cardRect5.height / 2 - fsRect.top;
                                                                           finalScene.style.transformOrigin = `${centerX5}px ${centerY5}px`;
                                                                           finalScene.style.transform = "scale(80)";
-
                                                                           finalScene.addEventListener('transitionend', function reEnterVideo5() {
                                                                             finalScene.removeEventListener('transitionend', reEnterVideo5);
                                                                             const video5again = document.createElement('video');
@@ -1603,15 +1656,7 @@
                                                                         video6.remove();
                                                                         markVideoWatched(5);
                                                                         finalScene.style.transform = "scale(1)";
-
-                                                                        /* once we scale back to normal, show the catalog */
-                                                                        finalScene.addEventListener('transitionend', function showCatalog() {
-                                                                          finalScene.removeEventListener('transitionend', showCatalog);
-                                                                          const catControls = document.getElementById('catalog-controls');
-                                                                          if (catControls) {
-                                                                            catControls.style.display = 'block'; /* reveal it now */
-                                                                          }
-                                                                        });
+                                                                        unlockCatalog();
                                                                       };
 
                                                                       video6.addEventListener('ended', () => {
@@ -1621,14 +1666,7 @@
                                                                         catalogBtn.remove();
                                                                         backBtn6.remove();
                                                                         finalScene.style.transform = "scale(1)";
-
-                                                                        finalScene.addEventListener('transitionend', function showCatalogEnd() {
-                                                                          finalScene.removeEventListener('transitionend', showCatalogEnd);
-                                                                          const catControls = document.getElementById('catalog-controls');
-                                                                          if (catControls) {
-                                                                            catControls.style.display = 'block';
-                                                                          }
-                                                                        });
+                                                                        unlockCatalog();
                                                                       });
                                                                     });
                                                                   });
@@ -1642,7 +1680,6 @@
                                                     }
                                                   }
                                                 }, 500);
-
                                                 video4.addEventListener('ended', () => {
                                                   removeReflectionCaption();
                                                   markVideoWatched(3);
@@ -1666,12 +1703,15 @@
               });
             });
           });
+
+          setTimeout(() => {
+            finalScene.style.opacity = '1';
+          }, 50);
         }, 2000);
       }
 
-      /* 6.8) schedule the fade-out once music is near the end */
       function scheduleFadeOut() {
-        const fadeTimeOffset = 6; // fade out 6s before track ends
+        const fadeTimeOffset = 6;
         const remainingTime = backgroundMusic.duration - fadeTimeOffset - backgroundMusic.currentTime;
         if (remainingTime > 0) {
           setTimeout(fadeOutScene, remainingTime * 1000);
@@ -1687,5 +1727,12 @@
       }
     });
   </script>
+
+  <!-- keep the final scene style override -->
+  <style>
+    #final-scene {
+      transition: opacity 2s ease-in-out, transform 5s ease-in-out !important;
+    }
+  </style>
 </body>
 </html>
